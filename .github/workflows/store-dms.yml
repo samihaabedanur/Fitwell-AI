@@ -1,0 +1,94 @@
+name: Store DMS labels on GitHub
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths: [.github/workflows/store-dms.yml]
+permissions:
+  contents: write
+concurrency:
+  group: store-dms
+  cancel-in-progress: false
+jobs:
+  upload:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Download original fused-label archive
+        run: |
+          mkdir -p dms-assets
+          curl --fail --location --retry 3 --connect-timeout 30 --max-time 900 https://docs-assets.developer.apple.com/ml-research/datasets/dms/dms_v1_labels.zip -o dms-assets/dms_v1_labels.zip
+      - name: Verify archive and generate CSV inventory
+        run: |
+          python - <<'PY'
+          import csv, hashlib, json, zipfile
+          from pathlib import Path
+          from collections import defaultdict
+          root = Path("dms-assets")
+          archive = root / "dms_v1_labels.zip"
+          groups = defaultdict(lambda: {"file_count": 0, "uncompressed_bytes": 0})
+          with zipfile.ZipFile(archive) as z:
+              if not z.infolist():
+                  raise RuntimeError("Empty ZIP")
+              bad = z.testzip()
+              if bad:
+                  raise RuntimeError("Corrupt entry: " + bad)
+              with (root / "annotation_files.csv").open("w", newline="") as f:
+                  w = csv.writer(f)
+                  w.writerow(["path", "size_bytes", "compressed_bytes", "crc32"])
+                  for i in z.infolist():
+                      if i.is_dir():
+                          continue
+                      w.writerow([i.filename, i.file_size, i.compress_size, i.CRC])
+                      g = groups[str(Path(i.filename).parent)]
+                      g["file_count"] += 1
+                      g["uncompressed_bytes"] += i.file_size
+          with (root / "archive_summary.csv").open("w", newline="") as f:
+              w = csv.writer(f)
+              w.writerow(["parent_directory", "file_count", "uncompressed_bytes"])
+              for folder, stats in sorted(groups.items()):
+                  w.writerow([folder, stats["file_count"], stats["uncompressed_bytes"]])
+          (root / "source.json").write_text(json.dumps({
+              "source": "https://github.com/apple-aiml-research/ml-dms-dataset",
+              "archive_url": "https://docs-assets.developer.apple.com/ml-research/datasets/dms/dms_v1_labels.zip",
+              "archive_bytes": archive.stat().st_size,
+              "file_count": sum(g["file_count"] for g in groups.values()),
+              "zip_crc_check": "passed", "dataset_license": "CC-BY-NC-4.0",
+              "rgb_photos_included": False, "training_performed": False
+          }, indent=2))
+          (root / "ATTRIBUTION.txt").write_text(
+              "Paul Upchurch and Ransen Niu. A Dense Material Segmentation Dataset for Indoor and Outdoor Scene Parsing. ECCV 2022.\n"
+              "Source: https://github.com/apple-aiml-research/ml-dms-dataset\n"
+              "Dataset: CC BY-NC 4.0 https://creativecommons.org/licenses/by-nc/4.0/\n"
+              "For non-commercial use. RGB photographs are acquired and licensed separately via Open Images.\n"
+              "This is the original fused-label archive, unmodified. No training performed.\n")
+          lines = []
+          for file in sorted(root.iterdir()):
+              h = hashlib.sha256()
+              with file.open("rb") as f:
+                  for chunk in iter(lambda: f.read(1024 * 1024), b""):
+                      h.update(chunk)
+              lines.append(h.hexdigest() + "  " + file.name)
+          (root / "SHA256SUMS.txt").write_text("\n".join(lines) + "\n")
+          print((root / "source.json").read_text())
+          PY
+      - name: Store dataset archive in Releases
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          tag="dataset-dms-v1-labels"
+          if ! gh release view "$tag" > /dev/null 2>&1; then
+            gh release create "$tag" --title "DMS — fused material segmentation labels" --notes "Original Apple DMS v1 fused-label archive, verified by ZIP CRC checks; CSV inventory, directory summary, attribution and SHA-256 checksums included. Dataset: CC BY-NC 4.0, non-commercial use. RGB photos must be acquired separately from Open Images. Raw polygons and pretrained model are optional separate upstream downloads. No model training performed."
+          fi
+          existing=$(gh release view "$tag" --json assets --jq '.assets[].name')
+          for file in dms-assets/*; do
+            if ! echo "$existing" | grep -Fxq "$(basename "$file")"; then
+              gh release upload "$tag" "$file"
+            fi
+          done
+          echo "DMS fused-label archive uploaded to repository Releases." >> "$GITHUB_STEP_SUMMARY"

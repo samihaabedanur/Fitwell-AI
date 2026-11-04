@@ -34,3 +34,7 @@ Open [the notebooks folder](../notebooks/) for four executed analysis notebooks 
 | ÖKOBAUDAT | [Empty environmental input template](oekobaudat/environmental_records_template.csv); source observations are not present | [Input checks](../notebooks/04_oekobaudat_analysis.ipynb) |
 
 These notebooks analyse available records; they do not train the camera. OpenSurfaces vocabulary counts are not material-frequency counts. No environmental measurements or model accuracy scores have been invented.
+
+## Dense Material Segmentation (DMS)
+
+See [dms/](dms/) for taxonomy and model-class CSVs, original sample code and download instructions. Open [the DMS notebook](../notebooks/05_dms_analysis.ipynb) for executed tables and graphs. The fused-label archive is stored as a GitHub Release by the upload workflow. Dataset is CC BY-NC 4.0; RGB photos are acquired separately. No camera training or integration has been performed.
