@@ -14,3 +14,5 @@ Choose **Run All**. The notebooks locate the repository automatically from its r
 - `04_oekobaudat_analysis.ipynb`: missing-data check and an empty input schema. Add your real export as `datasets/oekobaudat/environmental_records.csv`; never treat template rows as observations.
 
 Each notebook includes saved outputs from execution against the committed tables. None performs camera training or reports model accuracy. Existing datasets are preserved.
+
+- `05_dms_analysis.ipynb`: DMS material taxonomy, 46-class model-channel mapping, and measured archive-directory file counts. Dataset is non-commercial; RGB photos are obtained separately.

@@ -1,0 +1,5 @@
+parent_directory,file_count,uncompressed_bytes
+DMS_v1,3,22728840
+DMS_v1/labels/test,10168,183319653
+DMS_v1/labels/train,24251,449409296
+DMS_v1/labels/validation,10138,182496585

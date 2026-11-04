@@ -15,7 +15,7 @@ Paul Upchurch and Ransen Niu, **A Dense Material Segmentation Dataset for Indoor
 
 ## Dataset archive on GitHub
 
-The workflow `.github/workflows/store-dms.yml` stores the official **fused-label ZIP** in a repository Release titled **DMS — fused material segmentation labels** after successful verification. Its assets include a mask-file inventory, directory summary, attribution and checksums. Check Actions for upload progress.
+The official **fused-label ZIP** is stored in [DMS — fused material segmentation labels](https://github.com/samihaabedanur/Fitwell-AI/releases/tag/dataset-dms-v1-labels). It is 660,365,654 bytes (about 660 MB), with a verified ZIP CRC check. The Release also contains a file inventory, directory summary, attribution and checksums. `archive_summary.csv` is included here for analysis. The recorded train, validation and test label directories contain 24,251, 10,138 and 10,168 files respectively; these are archive file counts, not accuracy measurements.
 
 The RGB photographs are NOT bundled. Acquire the corresponding Open Images photos separately before preparing image/mask pairs. Do not treat label masks as colour training photos.
 
