@@ -1,33 +1,46 @@
 # OpenSurfaces — Release 0
 
-Original project: https://opensurfaces.cs.cornell.edu/
-Download and licence documentation: https://opensurfaces.cs.cornell.edu/publications/opensurfaces/
+## Source
 
-## Dataset files
+Project: https://opensurfaces.cs.cornell.edu/
 
-The official Release 0 is distributed as a ZIP archive (approximately 1.1 GB). The authors provide a separate helper to retrieve images and process annotations. Do not assume this ZIP includes every full-resolution photo.
+Publication and download documentation: https://opensurfaces.cs.cornell.edu/publications/opensurfaces/
 
-Our GitHub workflow `.github/workflows/store-opensurfaces.yml` downloads the unmodified original ZIP and helper, verifies the ZIP's CRCs, creates a file inventory and SHA-256 checksums, and uploads them to a repository Release.
+OpenSurfaces provides region-level annotations for the study of surface appearance and material recognition.
 
-The [OpenSurfaces — official Release 0](https://github.com/samihaabedanur/Fitwell-AI/releases/tag/dataset-opensurfaces-release-0) archive is now available on GitHub. The [upload workflow](https://github.com/samihaabedanur/Fitwell-AI/actions/runs/41856852494) downloaded the original ZIP (1,175,026,542 bytes), passed the ZIP CRC check, and uploaded six assets. Download `opensurfaces-release-0.zip`, the helper, provenance and checksums under Assets. Large files are Release assets rather than Git-tracked files.
+## Repository contents
 
-Official downloads:
+| File | Description |
+| --- | --- |
+| `materials.csv` | Material vocabulary, including source identifiers and status fields |
+| `material_groups.csv` | Original group definitions |
+| `photo_licenses.csv` | Licence definitions from the release metadata |
+| `archive_inventory.csv` | File-level archive inventory |
+| `source.json` | Source and storage references |
+
+The vocabulary tables were derived from the original Release 0 JSON records. Source fields and identifiers are retained. Inactive or ambiguous entries are not equivalent to usable training categories, and vocabulary size does not measure material frequency.
+
+## Dataset archive
+
+The [GitHub Release](https://github.com/samihaabedanur/Fitwell-AI/releases/tag/dataset-opensurfaces-release-0) contains the original ZIP archive (1,175,026,542 bytes), the upstream processing helper, provenance, an inventory and SHA-256 checksums. The [archival workflow](https://github.com/samihaabedanur/Fitwell-AI/actions/runs/41856852494) verified ZIP integrity before upload.
+
+Official source files:
+
 - https://labelmaterial.s3.amazonaws.com/release/opensurfaces-release-0.zip
 - https://labelmaterial.s3.amazonaws.com/release/process_opensurfaces_release_0.py
 
-## Local use
+Checksums document the bytes archived by the project workflow; they are not independent publisher-supplied checksums.
 
-Extract the ZIP into a separate data directory. Read the helper's documentation before using it: it is legacy upstream code and may require compatibility changes for modern Python. This integration does not execute it, download all associated photos, or generate training-ready masks automatically. Large local files should not be committed to Git.
+## Processing and analysis
 
-OpenSurfaces includes annotated material regions useful for investigating segmentation and recognition. Review labels, quality flags, photo licences and train/test separation before using the annotations. No training was performed and the browser camera remains unchanged.
+[Notebook 03](../../notebooks/03_opensurfaces_analysis.ipynb) examines the archive inventory and annotation vocabularies. Its storage figures describe file sizes rather than the distribution of material surfaces.
 
-## Licence and attribution
+The archive and helper are preserved as distributed. The legacy helper has not been executed within this integration and may require adaptation for current Python environments. Retrieval of associated photographs, preparation of image-mask pairs and verification of annotation quality remain separate processing stages. The archive is not treated as a complete collection of full-resolution photographs.
 
-Annotations: **Creative Commons Attribution 4.0 International** — https://creativecommons.org/licenses/by/4.0/
-Photos: each photo has its own licence. The annotation licence and Fitwell's software licence do not replace image rights.
+## Licence and citation
 
-Please credit Sean Bell, Paul Upchurch, Noah Snavely and Kavita Bala, **OpenSurfaces: A Richly Annotated Catalog of Surface Appearance**, ACM Transactions on Graphics (SIGGRAPH), volume 32, number 4, 2013.
+Annotations are distributed under [Creative Commons Attribution 4.0 International](https://creativecommons.org/licenses/by/4.0/). Photographs retain their individual licences.
 
-## Verify
+Sean Bell, Paul Upchurch, Noah Snavely and Kavita Bala. **OpenSurfaces: A Richly Annotated Catalog of Surface Appearance.** ACM Transactions on Graphics (SIGGRAPH), 32(4), 2013.
 
-The Release includes `SHA256SUMS.txt` and `archive_inventory.json`. Checksums establish which downloaded bytes were archived; they are computed by Fitwell's workflow, not independently supplied upstream checksums.
+No material-recognition model has been trained or deployed through this dataset integration.
