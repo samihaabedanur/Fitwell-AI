@@ -33,3 +33,7 @@ The available work covers source collection, archive verification, metadata conv
 ## Attribution and licensing
 
 Source attribution, version references and applicable terms are documented within each dataset directory. Photograph and model licences may differ from annotation licences. The project licence does not supersede external data rights.
+
+## Application reference: EcoHome Studio
+
+[EcoHome Studio](ecohome-studio/) is indexed as an application reference rather than a labelled dataset. Six derived CSV tables record material and design options, climate and budget categories, and source-resource locations. [Notebook 06](../notebooks/06_ecohome_studio_analysis.ipynb) provides executed descriptive analysis. Source code, document contents and demonstration sustainability scores have not been imported as research observations.

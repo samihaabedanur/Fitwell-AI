@@ -1,0 +1,4 @@
+value,label,record_type,source_path,source_revision
+low,Low budget,application_option,lib/domain/constants.ts,ab640555f0c5f7bc63b0da9d5d46d5a6d5198f2f
+medium,Medium budget,application_option,lib/domain/constants.ts,ab640555f0c5f7bc63b0da9d5d46d5a6d5198f2f
+premium,Premium,application_option,lib/domain/constants.ts,ab640555f0c5f7bc63b0da9d5d46d5a6d5198f2f

@@ -8,7 +8,7 @@ Fitwell AI investigates material identification and material information workflo
 | --- | --- | --- |
 | Material camera | [docs/](docs/) | Browser-based material suggestions using pretrained CLIP and texture tracking |
 | Research datasets | [datasets/](datasets/) | Source documentation, CSV tables, sample files and archived releases |
-| Exploratory analysis | [notebooks/](notebooks/) | Five executed notebooks with descriptive tables and figures |
+| Exploratory analysis | [notebooks/](notebooks/) | Six executed notebooks with descriptive tables and figures |
 | Segmentation training | [training/](training/) | DMS preparation and pilot-training scripts; end-to-end execution pending |
 
 The camera prototype classifies sampled image regions and overlays provisional labels. The boxes represent the regions examined rather than verified material boundaries. Recognition accuracy and mobile performance have not been systematically evaluated.
