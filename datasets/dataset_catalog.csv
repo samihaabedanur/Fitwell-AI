@@ -4,3 +4,4 @@ MatFuse,5 samples; 35 files,matfuse/samples.csv; matfuse/files.csv,../notebooks/
 OpenSurfaces,Release 0; annotation vocabulary and archive inventory,opensurfaces/archive_inventory.csv,../notebooks/03_opensurfaces_analysis.ipynb,GitHub Release; additional image retrieval may be needed,False
 Oekobaudat,README only; no observations,oekobaudat/environmental_records_template.csv (empty),../notebooks/04_oekobaudat_analysis.ipynb,No source dataset imported,False
 DMS,Apple DMS v1 fused material segmentation labels,dms/taxonomy.csv; dms/model_classes.csv; dms/archive_summary.csv,../notebooks/05_dms_analysis.ipynb,GitHub Release labels; RGB photos acquired separately,False
+EcoHome Studio,Application reference; 10 material choices and 16 source resources,ecohome-studio/material_options.csv; ecohome-studio/resource_inventory.csv,../notebooks/06_ecohome_studio_analysis.ipynb,Source references only; no image dataset,False

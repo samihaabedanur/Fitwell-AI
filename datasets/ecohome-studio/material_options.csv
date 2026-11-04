@@ -1,0 +1,11 @@
+field,value,record_type,source_path,source_revision
+facadeMaterial,timber-board,application_option,lib/domain/home-concept-schema.ts,ab640555f0c5f7bc63b0da9d5d46d5a6d5198f2f
+facadeMaterial,brick,application_option,lib/domain/home-concept-schema.ts,ab640555f0c5f7bc63b0da9d5d46d5a6d5198f2f
+facadeMaterial,rendered-plaster,application_option,lib/domain/home-concept-schema.ts,ab640555f0c5f7bc63b0da9d5d46d5a6d5198f2f
+facadeMaterial,stone-veneer,application_option,lib/domain/home-concept-schema.ts,ab640555f0c5f7bc63b0da9d5d46d5a6d5198f2f
+facadeMaterial,metal-panel,application_option,lib/domain/home-concept-schema.ts,ab640555f0c5f7bc63b0da9d5d46d5a6d5198f2f
+facadeMaterial,fiber-cement,application_option,lib/domain/home-concept-schema.ts,ab640555f0c5f7bc63b0da9d5d46d5a6d5198f2f
+roofMaterial,metal-standing-seam,application_option,lib/domain/home-concept-schema.ts,ab640555f0c5f7bc63b0da9d5d46d5a6d5198f2f
+roofMaterial,clay-tile,application_option,lib/domain/home-concept-schema.ts,ab640555f0c5f7bc63b0da9d5d46d5a6d5198f2f
+roofMaterial,asphalt-shingle,application_option,lib/domain/home-concept-schema.ts,ab640555f0c5f7bc63b0da9d5d46d5a6d5198f2f
+roofMaterial,rubber-membrane,application_option,lib/domain/home-concept-schema.ts,ab640555f0c5f7bc63b0da9d5d46d5a6d5198f2f

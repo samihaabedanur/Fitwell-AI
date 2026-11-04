@@ -1,0 +1,10 @@
+{
+  "source_repository": "https://github.com/kasimsuh/ecohome-studio",
+  "source_revision": "ab640555f0c5f7bc63b0da9d5d46d5a6d5198f2f",
+  "resource_kind": "Application reference; not a labelled training dataset",
+  "licence_status": "No repository-wide licence file located at recorded revision",
+  "import_scope": "Derived factual configuration tables and resource index; no source code, PDF content, seed prose or demo-score measurements copied",
+  "csv_exports": 6,
+  "indexed_resources": 16,
+  "training_performed": false
+}
