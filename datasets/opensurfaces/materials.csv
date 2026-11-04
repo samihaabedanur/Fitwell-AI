@@ -1,0 +1,49 @@
+id,group,name,parent,representative_shape,active,fail,description
+30,,I can't tell,,,False,True,
+35,,More than one material,,,False,True,
+31,,Not on list,,,False,True,
+16,10.0,Brick,,45500.0,True,False,Small rectangular blocks typically made of fired or sun-dried clay
+12,15.0,Cardboard,,74584.0,True,False,Pasteboard or stiff paper
+17,16.0,Carpet/rug,,61134.0,True,False,Floor or stair covering made from thick woven fabric
+2,6.0,Ceramic,,89534.0,True,False,Hard brittle material produced from nonmetallic minerals by firing at high temperature
+50,,Chalkboard/blackboard,,,True,False,
+19,10.0,Concrete,,49829.0,True,False,Strong hard building material composed of sand and gravel and cement and water
+51,,Cork/corkboard,,,True,False,
+53,,Dirt,,,True,False,
+29,2.0,Fabric/cloth,,110486.0,True,False,Artifact made by weaving or felting or knitting or crocheting natural or synthetic fibers
+40,,Fire,,113412.0,True,False,Combustion of materials producing heat and light
+26,11.0,Foliage,,115278.0,True,False,"Plant leaves, flowers, and branches"
+27,9.0,Food,,111661.0,True,False,Nutritious substance that people or animals eat or drink
+24,13.0,Fur,,44611.0,True,False,"Short, fine, soft hair of certain animals"
+6,3.0,Glass,,115212.0,True,False,"Hard, brittle substance, typically transparent or translucent"
+34,,Granite,,36771.0,False,False,Plutonic igneous rock having visibly crystalline texture.  Note that laminate that looks like granite should be labeled as 'Granite'
+49,6.0,Granite/marble,,,True,False,
+36,,Hair,,100954.0,True,False,Threadlike strands growing from the skin of people
+21,6.0,Laminate,,78695.0,True,False,"Composite made of plastic resin and cellulose paper with a decorative finish.  If it is designed to look like another surface, please select that name instead"
+22,2.0,Leather,,93463.0,True,False,Animal skin made smooth and flexible by removing the hair and then tanning
+47,1.0,Linoleum,,,True,False,
+25,,Marble,,46360.0,False,False,"Hard crystalline metamorphic rock that takes a high polish, typically with streaks of color"
+10,4.0,Metal,,115760.0,True,False,"Solid material that is typically hard, shiny, malleable, fusible, and ductile"
+18,,Mirror,,49007.0,True,False,Polished surface that reflects a clear image
+41,1.0,Painted,,99795.0,True,False,Surface covered with a layer of opaque paint (e.g. acrylic or latex paint)
+11,8.0,Paper/tissue,,75737.0,True,False,Thin sheets from the pulp of wood or other fibrous substances
+37,,Paper towel/tissue,,,False,False,
+13,,Plaster,,,False,False,
+32,7.0,Plastic - clear,,79991.0,True,False,Transparent synthetic material made from a wide range of organic polymers (does transmit light)
+33,7.0,Plastic - opaque,,101288.0,True,False,Opaque synthetic material made from a wide range of organic polymers (does not transmit light)
+46,12.0,Rubber/latex,,102458.0,True,False,Elastic material obtained from the latex sap of trees
+20,,Skin,,92544.0,True,False,Thin layer of tissue forming the natural outer covering of the body of a person or animal
+44,,Sky,,118157.0,True,False,The atmosphere and outer space as viewed from the earth
+45,,Sponge,,94587.0,True,False,Porous mass of interlacing fibers used to absorb water
+23,10.0,Stone,,105043.0,True,False,"Hard, solid, nonmetallic mineral matter of which rock is made"
+52,,Styrofoam,,,True,False,
+4,5.0,Tile,,72815.0,True,False,Flat thin rectangular slab used to cover surfaces.  Note that laminate that looks like tile should be labeled as 'Tile'
+5,,Wallboard - painted,,,False,False,
+15,,Wallboard - unpainted,,,False,False,
+39,1.0,Wallpaper,,111933.0,True,False,Decorative paper for the walls of rooms
+28,,Water,,144621.0,True,False,Liquid found in lakes and rivers
+42,,Wax,,101287.0,True,False,Insoluble compounds that are malleable near ambient temperatures
+38,14.0,Wicker,,107330.0,True,False,Interlaced slender branches
+43,1.0,Wood,,100704.0,True,False,Hard fibrous substance under the bark of trees.  Note that laminate that looks like wood should be labeled as 'Wood'
+3,,Wood - natural color,,,False,False,
+9,,Wood - painted,,,False,False,

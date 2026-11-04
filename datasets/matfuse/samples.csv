@@ -1,0 +1,6 @@
+sample_id,tags,palette_json,render_path,metadata_path
+asphalt_floor,asphalt;floor;concrete;grass,[],sample_materials/asphalt_floor/renders/render.png,sample_materials/asphalt_floor/metadata.json
+castle_brick,brick;wall;castle;terracotta,[],sample_materials/castle_brick/renders/render.png,sample_materials/castle_brick/metadata.json
+clean_pebbles,pebbles;clean;stones;small,[],sample_materials/clean_pebbles/renders/render.png,sample_materials/clean_pebbles/metadata.json
+grey_roof,roof;tiles;grey;old,[],sample_materials/grey_roof/renders/render.png,sample_materials/grey_roof/metadata.json
+old_wood_floor,wood;floor;old;dark,[],sample_materials/old_wood_floor/renders/render.png,sample_materials/old_wood_floor/metadata.json

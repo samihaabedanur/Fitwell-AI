@@ -1,0 +1,5 @@
+dataset,scope,csv,notebook,image_storage,training_performed
+DTD,5640 images; 47 texture categories,dtd/images.csv; dtd/categories.csv,../notebooks/01_dtd_analysis.ipynb,GitHub Release,False
+MatFuse,5 samples; 35 files,matfuse/samples.csv; matfuse/files.csv,../notebooks/02_matfuse_analysis.ipynb,Git-tracked samples,False
+OpenSurfaces,Release 0; annotation vocabulary and archive inventory,opensurfaces/archive_inventory.csv,../notebooks/03_opensurfaces_analysis.ipynb,GitHub Release; additional image retrieval may be needed,False
+Oekobaudat,README only; no observations,oekobaudat/environmental_records_template.csv (empty),../notebooks/04_oekobaudat_analysis.ipynb,No source dataset imported,False

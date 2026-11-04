@@ -1,0 +1,11 @@
+id,added,cc_no_deriv,name,publishable,url,creative_commons,cc_attribution,cc_noncommercial,cc_share_alike
+9,2013-04-12T17:41:12.707Z,True,Attribution-NoDerivs 2.0 Generic,False,http://creativecommons.org/licenses/by-nd/2.0/,True,True,False,False
+3,2013-04-12T17:04:27.050Z,False,Attribution 2.0 Generic,True,http://creativecommons.org/licenses/by/2.0/,True,True,False,False
+6,2013-04-12T17:34:05.594Z,False,Attribution 3.0 Generic,True,http://creativecommons.org/licenses/by/3.0/,True,True,False,False
+10,2013-04-12T17:50:01.447Z,False,All Rights Reserved,False,,False,False,False,False
+4,2013-04-12T17:04:28.100Z,False,Attribution-ShareAlike 2.0 Generic,False,http://creativecommons.org/licenses/by-sa/2.0/,True,True,False,True
+8,2013-04-12T17:37:26.050Z,False,Attribution-ShareAlike 3.0 Unported,False,http://creativecommons.org/licenses/by-sa/3.0/,True,True,False,True
+5,2013-04-12T17:29:24.447Z,True,Attribution-NonCommercial-NoDerivs 2.0 Generic,False,http://creativecommons.org/licenses/by-nc-nd/2.0/,True,True,True,False
+2,2013-04-12T17:04:26.540Z,False,Attribution-NonCommercial 2.0 Generic,False,http://creativecommons.org/licenses/by-nc/2.0/,True,True,True,False
+1,2013-04-12T17:04:26.318Z,False,Attribution-NonCommercial-ShareAlike 2.0 Generic,False,http://creativecommons.org/licenses/by-nc-sa/2.0/,True,True,True,True
+7,2013-04-12T17:35:55.680Z,False,Attribution-NonCommercial-ShareAlike 3.0 Unported,False,http://creativecommons.org/licenses/by-nc-sa/3.0/,True,True,True,True
