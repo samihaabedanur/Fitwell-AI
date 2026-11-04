@@ -1,18 +1,31 @@
 # Dataset analysis notebooks
 
-Open a notebook in VS Code with its Python and Jupyter extensions. Select a Python environment, then run:
+The notebooks document exploratory analysis of the available Fitwell AI dataset resources. Saved outputs include source inventories, metadata tables and descriptive figures.
+
+## Notebook index
+
+| Notebook | Scope |
+| --- | --- |
+| [01 — DTD](01_dtd_analysis.ipynb) | Image-index consistency and texture-category balance |
+| [02 — MatFuse](02_matfuse_analysis.ipynb) | Sample metadata, file counts and storage distribution |
+| [03 — OpenSurfaces](03_opensurfaces_analysis.ipynb) | Archive inventory, material vocabulary and licence definitions |
+| [04 — ÖKOBAUDAT](04_oekobaudat_analysis.ipynb) | Input-schema preparation and source-data availability checks |
+| [05 — DMS](05_dms_analysis.ipynb) | Material taxonomy, model-channel mapping and archive statistics |
+
+The analyses distinguish texture attributes, material vocabulary entries, archive files and environmental records. These quantities are not treated as interchangeable measures of dataset coverage or recognition performance.
+
+## Environment and execution
+
+Dependencies are installed from the repository root:
 
 ```bash
 python -m pip install -r notebooks/requirements.txt
 ```
 
-Choose **Run All**. The notebooks locate the repository automatically from its root or a subfolder. CSV files are read from `datasets/`. Image archives are not downloaded automatically.
+The notebooks can be executed in VS Code with the Python and Jupyter extensions and the selected Python environment. Repository-relative CSV files are located automatically. Image archives are not downloaded during notebook execution.
 
-- `01_dtd_analysis.ipynb`: real category counts and image-index checks. Texture attributes are not material identities.
-- `02_matfuse_analysis.ipynb`: five sample materials, tags and file-size analysis. Not the unreleased training set.
-- `03_opensurfaces_analysis.ipynb`: official archive inventory and available annotation vocabularies. File sizes are not material-frequency statistics.
-- `04_oekobaudat_analysis.ipynb`: missing-data check and an empty input schema. Add your real export as `datasets/oekobaudat/environmental_records.csv`; never treat template rows as observations.
+## Reproducibility and limitations
 
-Each notebook includes saved outputs from execution against the committed tables. None performs camera training or reports model accuracy. Existing datasets are preserved.
+All five notebooks include saved outputs from execution against the committed tables. The ÖKOBAUDAT notebook reports the absence of source measurements and does not present environmental estimates. Other figures describe the records available to each analysis.
 
-- `05_dms_analysis.ipynb`: DMS material taxonomy, 46-class model-channel mapping, and measured archive-directory file counts. Dataset is non-commercial; RGB photos are obtained separately.
+Model optimisation, recognition benchmarking and browser deployment are outside the scope of these notebooks. Preliminary model-training scripts are documented separately in [training/](../training/).
