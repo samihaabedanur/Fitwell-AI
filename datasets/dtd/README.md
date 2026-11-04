@@ -12,7 +12,13 @@ Original research: https://www.robots.ox.ac.uk/~vgg/data/dtd/
 - `download.py`: downloads images plus the mirror's metadata locally; records local SHA-256 hashes after downloading.
 - `requirements.txt`: downloader dependency.
 
-The image bytes are hosted upstream, not duplicated in this Git repository. This is a reproducible dataset integration, not an embedded copy of the full image collection.
+The image bytes are stored on GitHub as a Release archive rather than in Git history. The pinned upstream downloader remains available as an alternative.
+
+## Download the full dataset from GitHub
+
+Open [DTD dataset release](https://github.com/samihaabedanur/Fitwell-AI/releases/tag/dataset-dtd-e850d7c773fa) and download `dtd-voxel51-e850d7c773fa.tar.gz` under Assets (625,925,910 bytes, about 626 MB). Extract it using an archive tool; Windows users can use 7-Zip. It contains all 5,640 images, upstream metadata, per-image SHA-256 inventory and attribution. The accompanying `.sha256` file verifies the archive.
+
+The successful [upload run](https://github.com/samihaabedanur/Fitwell-AI/actions/runs/41854398789) downloaded and checked all indexed images before packaging.
 
 ## Download in VS Code
 
@@ -62,4 +68,4 @@ Original authors: M. Cimpoi, S. Maji, I. Kokkinos, S. Mohamed and A. Vedaldi. Ho
 
 ## Verification status
 
-The committed index was checked for 5,640 unique paths and 47 classes with 120 files each. The downloader passed Python compilation and index validation. A full image download and model training have not been run here.
+The committed index was checked for 5,640 unique paths and 47 classes with 120 files each. The downloader passed Python compilation and index validation. A full download, image-presence check, per-image SHA-256 inventory and Release upload completed through GitHub Actions. Model training has not been run.
