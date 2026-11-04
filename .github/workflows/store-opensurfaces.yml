@@ -1,0 +1,86 @@
+name: Store OpenSurfaces on GitHub
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths: [.github/workflows/store-opensurfaces.yml]
+permissions:
+  contents: write
+concurrency:
+  group: store-opensurfaces
+  cancel-in-progress: false
+jobs:
+  upload:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Download original release and helper
+        run: |
+          mkdir -p opensurfaces-assets
+          curl --fail --location --retry 3 --connect-timeout 30 --max-time 900 https://labelmaterial.s3.amazonaws.com/release/opensurfaces-release-0.zip -o opensurfaces-assets/opensurfaces-release-0.zip
+          curl --fail --location --retry 3 --max-time 120 https://labelmaterial.s3.amazonaws.com/release/process_opensurfaces_release_0.py -o opensurfaces-assets/process_opensurfaces_release_0.py
+      - name: Check archive and write provenance
+        run: |
+          python - <<'PY'
+          import hashlib, json, zipfile
+          from pathlib import Path
+          root = Path("opensurfaces-assets")
+          archive = root / "opensurfaces-release-0.zip"
+          with zipfile.ZipFile(archive) as z:
+              if not z.infolist():
+                  raise RuntimeError("Empty archive")
+              broken = z.testzip()
+              if broken:
+                  raise RuntimeError("CRC failure: " + broken)
+              inventory = [{"path": i.filename, "size_bytes": i.file_size, "crc32": i.CRC} for i in z.infolist()]
+          (root / "archive_inventory.json").write_text(json.dumps(inventory, indent=2))
+          info = {
+              "homepage": "https://opensurfaces.cs.cornell.edu/",
+              "release_url": "https://labelmaterial.s3.amazonaws.com/release/opensurfaces-release-0.zip",
+              "release": "0",
+              "archive_bytes": archive.stat().st_size,
+              "archive_entries": len(inventory),
+              "archive_crc_check": "passed",
+              "annotations_license": "CC-BY-4.0",
+              "photo_licenses": "Individual image licences; not replaced by annotation or repository licence",
+              "camera_training_performed": False,
+              "helper_executed": False
+          }
+          (root / "source.json").write_text(json.dumps(info, indent=2))
+          (root / "ATTRIBUTION.txt").write_text(
+              "OpenSurfaces: A Richly Annotated Catalog of Surface Appearance\n"
+              "Sean Bell, Paul Upchurch, Noah Snavely, Kavita Bala. SIGGRAPH 2013.\n"
+              "Source: https://opensurfaces.cs.cornell.edu/publications/opensurfaces/\n"
+              "Annotations: CC BY 4.0 https://creativecommons.org/licenses/by/4.0/\n"
+              "Photos retain their own licences. No camera training was performed.\n"
+              "Original Release 0 zip and helper are unmodified. Helper has not been run.\n")
+          checksums = []
+          for file in sorted(root.iterdir()):
+              h = hashlib.sha256()
+              with file.open("rb") as f:
+                  for chunk in iter(lambda: f.read(1024 * 1024), b""):
+                      h.update(chunk)
+              checksums.append(h.hexdigest() + "  " + file.name)
+          (root / "SHA256SUMS.txt").write_text("\n".join(checksums) + "\n")
+          print(json.dumps(info))
+          PY
+      - name: Upload to repository Releases
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          tag="dataset-opensurfaces-release-0"
+          if ! gh release view "$tag" > /dev/null 2>&1; then
+            gh release create "$tag" --title "OpenSurfaces — official Release 0" --notes "Original Cornell Release 0 archive and helper, with provenance, ZIP integrity verification and SHA-256 checksums. Annotations are CC BY 4.0; photos retain individual licences. Helper has not been executed; additional images may need retrieval. No model training performed."
+          fi
+          existing=$(gh release view "$tag" --json assets --jq '.assets[].name')
+          for file in opensurfaces-assets/*; do
+            if ! echo "$existing" | grep -Fxq "$(basename "$file")"; then
+              gh release upload "$tag" "$file"
+            fi
+          done
+          echo "OpenSurfaces uploaded to repository Releases." >> "$GITHUB_STEP_SUMMARY"
