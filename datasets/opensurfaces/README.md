@@ -9,7 +9,7 @@ The official Release 0 is distributed as a ZIP archive (approximately 1.1 GB). T
 
 Our GitHub workflow `.github/workflows/store-opensurfaces.yml` downloads the unmodified original ZIP and helper, verifies the ZIP's CRCs, creates a file inventory and SHA-256 checksums, and uploads them to a repository Release.
 
-Open the repository **Releases** page and select **OpenSurfaces — official Release 0** after its upload workflow succeeds. Download `opensurfaces-release-0.zip`, the helper, provenance and checksums under Assets. Large files are Release assets rather than Git-tracked files.
+The [OpenSurfaces — official Release 0](https://github.com/samihaabedanur/Fitwell-AI/releases/tag/dataset-opensurfaces-release-0) archive is now available on GitHub. The [upload workflow](https://github.com/samihaabedanur/Fitwell-AI/actions/runs/41856852494) downloaded the original ZIP (1,175,026,542 bytes), passed the ZIP CRC check, and uploaded six assets. Download `opensurfaces-release-0.zip`, the helper, provenance and checksums under Assets. Large files are Release assets rather than Git-tracked files.
 
 Official downloads:
 - https://labelmaterial.s3.amazonaws.com/release/opensurfaces-release-0.zip
