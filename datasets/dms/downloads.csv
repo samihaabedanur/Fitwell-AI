@@ -1,0 +1,4 @@
+resource,url,upstream_size_description,purpose,uploaded_to_github
+fused_labels,https://docs-assets.developer.apple.com/ml-research/datasets/dms/dms_v1_labels.zip,630 MB,Fused label masks; RGB photos acquired separately,Release workflow
+pretrained_model,https://docs-assets.developer.apple.com/ml-research/datasets/dms/dms46_v1.zip,170 MB,Pretrained 46-class model; separate Apple licence,No; optional upstream download
+raw_polygons,https://docs-assets.developer.apple.com/ml-research/datasets/dms/dms_v1_polygons.zip,2.3 GB,Optional unfused polygon annotations,No; optional upstream download

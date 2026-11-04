@@ -1,0 +1,58 @@
+label_id,name,shortname,semantic_label,in_dms46_model,dms46_channel,srgb_red,srgb_green,srgb_blue
+0,No label,none,False,False,,0,0,0
+1,Animal skin,hide,True,True,0.0,188,188,137
+2,Bone/teeth/horn,bone,True,True,1.0,0,188,0
+3,Brickwork,brick,True,True,2.0,188,188,0
+4,Cardboard,cardboard,True,True,3.0,0,0,188
+5,Carpet/rug,carpet,True,True,4.0,188,0,188
+6,Ceiling tile,ceilingtile,True,True,5.0,0,188,188
+7,Ceramic,ceramic,True,True,6.0,241,241,241
+8,Chalkboard/blackboard,chalkboard,True,True,7.0,0,137,137
+9,Clutter,clutter,True,True,8.0,225,0,0
+10,Concrete,concrete,True,True,9.0,137,188,0
+11,Cork/corkboard,cork,True,True,10.0,225,188,0
+12,Engineered stone,engineeredstone,True,True,11.0,137,0,188
+13,Fabric/cloth,fabric,True,True,12.0,137,188,188
+14,Fiberglass wool,fiberglass,True,False,,0,225,137
+15,Fire,fire,True,True,13.0,225,188,188
+16,Foliage,foliage,True,True,14.0,0,137,0
+17,Food,food,True,True,15.0,188,137,0
+18,Fur,fur,True,True,16.0,137,225,188
+19,Gemstone/quartz,gemstone,True,True,17.0,188,137,188
+20,Glass,glass,True,True,18.0,0,137,188
+21,Hair,hair,True,True,19.0,188,225,0
+22,I cannot tell,icannottell,False,False,,0,225,188
+23,Ice,ice,True,True,20.0,188,225,188
+24,Leather,leather,True,True,21.0,137,137,0
+25,"Liquid, non-water",liquid,True,False,,225,137,0
+26,Metal,metal,True,True,22.0,137,225,0
+27,Mirror,mirror,True,True,23.0,225,225,0
+28,Not on list,notonlist,False,False,,137,137,188
+29,Paint/plaster/enamel,paint,True,True,24.0,225,137,188
+30,Paper,paper,True,True,25.0,0,225,0
+31,Pearl,pearl,True,False,,188,0,225
+32,Photograph/painting,photograph,True,True,26.0,0,0,137
+33,"Plastic, clear",clearplastic,True,True,27.0,188,0,0
+34,"Plastic, non-clear",plastic,True,True,28.0,0,188,137
+35,Rubber/latex,rubber,True,True,29.0,188,0,137
+36,Sand,sand,True,True,30.0,0,0,225
+37,Skin/lips,skin,True,True,31.0,225,188,137
+38,Sky,sky,True,True,32.0,0,188,225
+39,Snow,snow,True,True,33.0,188,188,225
+40,Soap,soap,True,False,,137,0,137
+41,Soil/mud,soil,True,True,34.0,225,0,137
+42,Sponge,sponge,True,False,,137,188,137
+43,"Stone, natural",stone,True,True,35.0,225,225,188
+44,"Stone, polished",polishedstone,True,True,36.0,137,0,225
+45,Styrofoam,styrofoam,True,False,,225,0,225
+46,Tile,tile,True,True,37.0,137,188,225
+47,Wallpaper,wallpaper,True,True,38.0,225,188,225
+48,Water,water,True,True,39.0,0,137,225
+49,Wax,wax,True,True,40.0,188,137,137
+50,Whiteboard,whiteboard,True,True,41.0,188,188,188
+51,Wicker,wicker,True,True,42.0,188,225,137
+52,Wood,wood,True,True,43.0,137,0,0
+53,"Wood, tree",treewood,True,True,44.0,188,137,225
+54,Bad polygon,badpolygon,False,False,,0,225,225
+55,Multiple materials,multiplematerials,False,False,,188,225,225
+56,Asphalt,asphalt,True,True,45.0,137,137,137

@@ -1,0 +1,9 @@
+{
+  "repository": "https://github.com/apple-aiml-research/ml-dms-dataset",
+  "source_commit": "a379a63e9435e32134a465eb31ecb0aefebed985",
+  "dataset_license": "CC-BY-NC-4.0",
+  "code_and_model_license": "upstream/LICENSE.txt",
+  "rgb_images": "Acquire separately from Open Images; follow image licences",
+  "camera_updated": false,
+  "training_performed": false
+}

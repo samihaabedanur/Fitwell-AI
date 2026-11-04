@@ -1,0 +1,47 @@
+model_channel,label_id,material_name,shortname
+0,1,Animal skin,hide
+1,2,Bone/teeth/horn,bone
+2,3,Brickwork,brick
+3,4,Cardboard,cardboard
+4,5,Carpet/rug,carpet
+5,6,Ceiling tile,ceilingtile
+6,7,Ceramic,ceramic
+7,8,Chalkboard/blackboard,chalkboard
+8,9,Clutter,clutter
+9,10,Concrete,concrete
+10,11,Cork/corkboard,cork
+11,12,Engineered stone,engineeredstone
+12,13,Fabric/cloth,fabric
+13,15,Fire,fire
+14,16,Foliage,foliage
+15,17,Food,food
+16,18,Fur,fur
+17,19,Gemstone/quartz,gemstone
+18,20,Glass,glass
+19,21,Hair,hair
+20,23,Ice,ice
+21,24,Leather,leather
+22,26,Metal,metal
+23,27,Mirror,mirror
+24,29,Paint/plaster/enamel,paint
+25,30,Paper,paper
+26,32,Photograph/painting,photograph
+27,33,"Plastic, clear",clearplastic
+28,34,"Plastic, non-clear",plastic
+29,35,Rubber/latex,rubber
+30,36,Sand,sand
+31,37,Skin/lips,skin
+32,38,Sky,sky
+33,39,Snow,snow
+34,41,Soil/mud,soil
+35,43,"Stone, natural",stone
+36,44,"Stone, polished",polishedstone
+37,46,Tile,tile
+38,47,Wallpaper,wallpaper
+39,48,Water,water
+40,49,Wax,wax
+41,50,Whiteboard,whiteboard
+42,51,Wicker,wicker
+43,52,Wood,wood
+44,53,"Wood, tree",treewood
+45,56,Asphalt,asphalt
