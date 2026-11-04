@@ -1,0 +1,10 @@
+{
+  "homepage": "https://opensurfaces.cs.cornell.edu/",
+  "release": "0",
+  "archive_url": "https://labelmaterial.s3.amazonaws.com/release/opensurfaces-release-0.zip",
+  "helper_url": "https://labelmaterial.s3.amazonaws.com/release/process_opensurfaces_release_0.py",
+  "annotations_license": "CC-BY-4.0",
+  "photos_license": "Individual photo licences",
+  "storage": "GitHub Release assets; original downloads",
+  "camera_training_performed": false
+}

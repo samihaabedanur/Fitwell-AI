@@ -17,3 +17,7 @@ See [matfuse/](matfuse/) for five original sample materials (35 files), provenan
 ## Describable Textures Dataset (DTD)
 
 See [dtd/](dtd/) for an index of all 5,640 images across 47 texture categories and a pinned Python downloader for the Voxel51 Hugging Face dataset. Image bytes download locally, not into Git history. Texture labels are not verified material identities; no camera model has been trained with this addition.
+
+## OpenSurfaces
+
+See [opensurfaces/](opensurfaces/) for Release 0 provenance and instructions. The official ZIP and legacy helper are stored as GitHub Release assets by the upload workflow. Annotations are CC BY 4.0; images retain their individual licences. No camera training is performed.
