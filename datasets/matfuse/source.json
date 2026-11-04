@@ -1,0 +1,16 @@
+{
+  "source_repository": "https://github.com/giuvecchio/matfuse",
+  "source_commit": "a699a2187b44256cbe7d170b11ee3fad653e7683",
+  "scope": "sample_materials only; full training dataset not released",
+  "sample_count": 5,
+  "file_count": 35,
+  "total_bytes": 2148395,
+  "samples": [
+    "asphalt_floor",
+    "castle_brick",
+    "clean_pebbles",
+    "grey_roof",
+    "old_wood_floor"
+  ],
+  "camera_training_performed": false
+}
