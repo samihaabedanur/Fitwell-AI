@@ -1,0 +1,12 @@
+{
+  "repo_id": "Voxel51/Describable-Textures-Dataset",
+  "revision": "e850d7c773fa71940567cb53da4270b89fb3737a",
+  "source_url": "https://huggingface.co/datasets/Voxel51/Describable-Textures-Dataset",
+  "original_homepage": "https://www.robots.ox.ac.uk/~vgg/data/dtd/",
+  "image_count": 5640,
+  "category_count": 47,
+  "license_from_hub_card": "other",
+  "image_bytes_stored_in_git": false,
+  "labels_source": "Verified image filename prefixes in pinned Hugging Face file listing",
+  "camera_training_performed": false
+}
