@@ -1,0 +1,99 @@
+name: Store DTD dataset on GitHub
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - .github/workflows/store-dtd.yml
+
+permissions:
+  contents: write
+
+concurrency:
+  group: store-dtd-dataset
+  cancel-in-progress: false
+
+jobs:
+  upload-dataset:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install downloader
+        run: python -m pip install "huggingface_hub>=0.27,<2"
+      - name: Download, verify and package original dataset
+        run: |
+          python - <<'PY'
+          import csv, hashlib, json, tarfile
+          from pathlib import Path
+          from huggingface_hub import snapshot_download
+
+          repo = "Voxel51/Describable-Textures-Dataset"
+          revision = "e850d7c773fa71940567cb53da4270b89fb3737a"
+          root = Path("dtd-release")
+          root.mkdir()
+          snapshot_download(repo_id=repo, repo_type="dataset", revision=revision,
+                            local_dir=str(root),
+                            allow_patterns=["data/**", "README.md", "metadata.json", "samples.json", "fiftyone.yml"],
+                            max_workers=4)
+          with Path("datasets/dtd/images.csv").open(newline="") as f:
+              expected = list(csv.DictReader(f))
+          if len(expected) != 5640:
+              raise RuntimeError("Expected exactly 5640 images")
+          inventory = []
+          for row in expected:
+              image = root / row["relative_path"]
+              if not image.is_file() or image.stat().st_size == 0:
+                  raise RuntimeError(f"Missing image: {image}")
+              inventory.append({**row, "bytes": image.stat().st_size,
+                                "sha256": hashlib.sha256(image.read_bytes()).hexdigest()})
+          with (root / "inventory.csv").open("w", newline="") as f:
+              writer = csv.DictWriter(f, fieldnames=list(inventory[0]))
+              writer.writeheader()
+              writer.writerows(inventory)
+          (root / "PROVENANCE.json").write_text(json.dumps({
+              "repo_id": repo, "revision": revision, "image_count": len(inventory),
+              "source": "https://huggingface.co/datasets/" + repo,
+              "licence": "other; original dataset is supplied for research purposes",
+              "original_homepage": "https://www.robots.ox.ac.uk/~vgg/data/dtd/",
+              "camera_training_performed": False
+          }, indent=2))
+          (root / "ATTRIBUTION.txt").write_text(
+              "Describable Textures Dataset (DTD)\n"
+              "M. Cimpoi, S. Maji, I. Kokkinos, S. Mohamed, A. Vedaldi.\n"
+              "Describing Textures in the Wild, CVPR 2014. Hosting: Voxel51.\n"
+              "Original: https://www.robots.ox.ac.uk/~vgg/data/dtd/\n"
+              "Dataset images retain their original rights, not Fitwell's software licence.\n"
+              "These are texture attributes, not material identities. No camera was trained.\n")
+          archive = Path("dtd-voxel51-e850d7c773fa.tar.gz")
+          with tarfile.open(archive, "w:gz") as tar:
+              for file in sorted(root.rglob("*")):
+                  if file.is_file() and ".cache" not in file.relative_to(root).parts:
+                      tar.add(file, arcname="dtd/" + str(file.relative_to(root)), recursive=False)
+          checksum = hashlib.sha256()
+          with archive.open("rb") as f:
+              for chunk in iter(lambda: f.read(1024 * 1024), b""):
+                  checksum.update(chunk)
+          Path(str(archive) + ".sha256").write_text(checksum.hexdigest() + "  " + archive.name + "\n")
+          print(f"Packaged {len(inventory)} images: {archive.stat().st_size:,} bytes")
+          PY
+      - name: Publish downloadable dataset in this repository
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          tag="dataset-dtd-e850d7c773fa"
+          if ! gh release view "$tag" > /dev/null 2>&1; then
+            gh release create "$tag" --title "DTD dataset — 5,640 texture images" --notes "Pinned Voxel51 DTD snapshot: e850d7c773fa71940567cb53da4270b89fb3737a. Research dataset with original attribution and rights retained. Contains 5,640 images, metadata, an inventory and SHA-256 checksum. No camera training has been performed."
+          fi
+          existing=$(gh release view "$tag" --json assets --jq '.assets[].name')
+          for file in dtd-voxel51-e850d7c773fa.tar.gz dtd-voxel51-e850d7c773fa.tar.gz.sha256; do
+            if ! echo "$existing" | grep -Fxq "$file"; then
+              gh release upload "$tag" "$file"
+            fi
+          done
+          echo "Dataset uploaded. Open this repository's Releases page." >> "$GITHUB_STEP_SUMMARY"
