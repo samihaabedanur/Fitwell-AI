@@ -38,7 +38,7 @@ Run the trained checkpoint with a local webcam from the repository root:
 .venv\Scripts\python.exe camera_app.py
 ```
 
-The window draws a box and trained material name over detected regions. Press `Q` or `Esc` to stop. The default checkpoint is `training/runs/dms-expanded/best.pt`; select another with `--checkpoint training/runs/dms-10epochs/best.pt`. The expanded pilot's held-out test mean IoU is 0.124, so labels remain experimental.
+The window continuously filters for relevant interior materials, then draws a box and trained material name over each selected region. Press `Q` or `Esc` to stop. The default checkpoint is `training/runs/dms-expanded/best.pt`; select another with `--checkpoint training/runs/dms-10epochs/best.pt`. The expanded pilot's held-out test mean IoU is 0.124, so labels remain experimental.
 
 ## Camera prototype
 

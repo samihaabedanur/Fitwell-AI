@@ -7,7 +7,8 @@ import torch
 from torchvision.models.segmentation import deeplabv3_mobilenet_v3_large
 from torchvision.transforms.functional import normalize, to_tensor
 
-ALLOWED_MATERIALS = {
+# Continuous material filter: keep the live view focused on interior surfaces.
+MATERIAL_FILTER = {
     "Brickwork", "Ceramic", "Concrete", "Glass", "Metal", "Mirror",
     "Paint/plaster/enamel", "Tile", "Wallpaper", "Wood",
     "Stone, natural", "Stone, polished", "Asphalt", "Ceiling tile",
@@ -46,7 +47,7 @@ def main():
                 prediction, confidence = mask; prediction = cv2.resize(prediction.astype(np.uint8), (frame.shape[1], frame.shape[0]), interpolation=cv2.INTER_NEAREST); confidence = cv2.resize(confidence, (frame.shape[1], frame.shape[0]), interpolation=cv2.INTER_LINEAR)
                 for channel in np.unique(prediction):
                     if channel not in names: continue
-                    if names[int(channel)] not in ALLOWED_MATERIALS: continue
+                    if names[int(channel)] not in MATERIAL_FILTER: continue
                     region = ((prediction == channel) & (confidence >= a.confidence)).astype(np.uint8); count, _, stats, _ = cv2.connectedComponentsWithStats(region, 8)
                     for x, y, w, h, area in stats[1:]:
                         if area < frame.shape[0] * frame.shape[1] * .015: continue
