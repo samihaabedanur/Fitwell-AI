@@ -4,6 +4,8 @@ import csv
 import gzip
 import importlib.util
 import json
+import time
+from urllib.error import HTTPError
 from pathlib import Path
 from urllib.request import Request, urlopen
 
@@ -18,13 +20,56 @@ def inside(root, relative):
     return path
 
 
+class RateLimited(Exception):
+    pass
+
+
+def download_original(url, destination, delay):
+    """Reuse complete downloads and stop immediately on server rate limits."""
+    if destination.is_file():
+        return
+    time.sleep(delay)
+    partial = destination.with_suffix('.part')
+    try:
+        with urlopen(Request(url, headers={'User-Agent': 'Fitwell-research-pilot/1.0'}), timeout=30) as response, partial.open('wb') as f:
+            total = 0
+            while chunk := response.read(1024 * 1024):
+                total += len(chunk)
+                if total > 60 * 1024 * 1024:
+                    raise ValueError('Original exceeds 60 MB download limit')
+                f.write(chunk)
+        partial.replace(destination)
+    except HTTPError as error:
+        if error.code == 429:
+            wait = error.headers.get('Retry-After', 'not specified') if error.headers else 'not specified'
+            raise RateLimited(f'HTTP 429: server rate limit; Retry-After: {wait}. Stop and retry later.') from error
+        raise
+    finally:
+        partial.unlink(missing_ok=True)
+
+
+COLUMNS = ['split', 'image_id', 'image_path', 'label_path', 'source_url', 'source_license', 'status', 'detail']
+
+
+def save_manifest(path, rows):
+    temporary = path.with_suffix('.tmp')
+    with temporary.open('w', newline='', encoding='utf-8') as f:
+        writer = csv.DictWriter(f, fieldnames=COLUMNS)
+        writer.writeheader()
+        writer.writerows(rows.values())
+    temporary.replace(path)
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--data', type=Path, required=True)
     parser.add_argument('--train', type=int, default=200)
     parser.add_argument('--validation', type=int, default=50)
     parser.add_argument('--test', type=int, default=25)
+    parser.add_argument('--delay', type=float, default=2.0, help='Seconds between new photo requests (minimum 1)')
     args = parser.parse_args()
+    if not np.isfinite(args.delay) or args.delay < 1:
+        parser.error('--delay must be finite and at least 1 second')
     if min(args.train, args.validation, args.test) < 1:
         parser.error('All split limits must be positive')
     root = args.data.resolve()
@@ -38,7 +83,12 @@ def main():
         raise ValueError('Expected the DMS info.json.gz list')
     limits = {'train': args.train, 'validation': args.validation, 'test': args.test}
     attempted = dict.fromkeys(limits, 0)
-    outcomes = []
+    manifest = root / 'pilot_manifest.csv'
+    outcomes = {}
+    if manifest.is_file():
+        with manifest.open(newline='', encoding='utf-8') as f:
+            for previous in csv.DictReader(f):
+                outcomes[(previous['split'], previous['image_id'])] = previous
     seen = set()
     originals = root / 'pilot_originals'
     originals.mkdir(exist_ok=True)
@@ -63,13 +113,7 @@ def main():
                 if not url.startswith(('https://', 'http://')):
                     raise ValueError('Original image URL missing')
                 original = originals / f'{split}_{image_path.stem}.img'
-                with urlopen(Request(url, headers={'User-Agent': 'Fitwell-research-pilot/1.0'}), timeout=30) as response, original.open('wb') as f:
-                    total = 0
-                    while chunk := response.read(1024 * 1024):
-                        total += len(chunk)
-                        if total > 60 * 1024 * 1024:
-                            raise ValueError('Original exceeds 60 MB download limit')
-                        f.write(chunk)
+                download_original(url, original, args.delay)
                 with Image.open(original) as source:
                     image = ImageOps.exif_transpose(source).convert('RGB')
                 with Image.open(label_path) as label:
@@ -88,17 +132,22 @@ def main():
             if not checks.rotation_descriptor_match(descriptor, np.asarray(item['rotation_descriptor']), 50, 5, 30):
                 raise ValueError('Orientation/content check failed; inspect manually')
             row['status'] = 'accepted'
+        except RateLimited as e:
+            row['status'], row['detail'] = 'excluded', str(e)
+            outcomes[(split, image_id)] = row
+            save_manifest(manifest, outcomes)
+            print(str(e), flush=True)
+            print('Progress saved. No more requests were sent. Rerun the same command later; downloaded files will be reused.', flush=True)
+            break
         except Exception as e:
             row['status'], row['detail'] = 'excluded', str(e)
-        outcomes.append(row)
+        outcomes[(split, image_id)] = row
+        save_manifest(manifest, outcomes)
         print(split, attempted[split], row['status'], image_path.name, flush=True)
-    manifest = root / 'pilot_manifest.csv'
-    columns = ['split', 'image_id', 'image_path', 'label_path', 'source_url', 'source_license', 'status', 'detail']
-    with manifest.open('w', newline='', encoding='utf-8') as f:
-        w = csv.DictWriter(f, fieldnames=columns); w.writeheader(); w.writerows(outcomes)
+    save_manifest(manifest, outcomes)
     print('Manifest:', manifest)
     for split in limits:
-        n = sum(r['status'] == 'accepted' and r['split'] == split for r in outcomes)
+        n = sum(r['status'] == 'accepted' and r['split'] == split for r in outcomes.values())
         print(split, 'accepted:', n, 'attempted:', attempted[split])
     print('Excluded rows are not used for training. Review image licences before use.')
 
