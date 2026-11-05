@@ -29,6 +29,17 @@ Notebook dependencies are listed in `notebooks/requirements.txt`; training depen
 
 The analysis notebooks describe dataset structure and coverage. They do not constitute training or evaluation of the camera prototype. Training scripts are available, but a completed training run and deployment of a custom material model have not been recorded.
 
+## Trained live camera in VS Code
+
+Run the trained checkpoint with a local webcam from the repository root:
+
+```powershell
+.venv\Scripts\python.exe -m pip install -r camera_requirements.txt
+.venv\Scripts\python.exe camera_app.py
+```
+
+The window draws a box and trained material name over detected regions. Press `Q` or `Esc` to stop. The default checkpoint is `training/runs/dms-expanded/best.pt`; select another with `--checkpoint training/runs/dms-10epochs/best.pt`. The expanded pilot's held-out test mean IoU is 0.124, so labels remain experimental.
+
 ## Camera prototype
 
 The interface is served through GitHub Pages from the `main` branch and `/docs` directory. Camera access requires an HTTPS connection, or localhost during development, and browser permission.
