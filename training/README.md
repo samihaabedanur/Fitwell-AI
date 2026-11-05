@@ -43,6 +43,12 @@ The preparation script attempts the first 200 training, 50 validation and 25 tes
 
 The manifest records accepted and excluded pairs. Visual review of representative image-mask pairs is required before optimisation. Both training and validation partitions must contain accepted records. Selection of the first records constitutes a functional pilot rather than a balanced or representative benchmark; larger experiments require a documented sampling strategy.
 
+### Server rate limits and resuming
+
+New photo requests are spaced by two seconds by default. Use `--delay 5` for a slower run. On HTTP 429, the script saves progress and stops immediately; the message includes the server's Retry-After header when supplied. Wait at least that interval before retrying. If no interval is supplied, retry later rather than repeatedly restarting.
+
+Rerun the same preparation command to resume. Complete originals and prepared images are reused, image/mask checks still run, and existing manifest rows are retained and updated by split and image ID. Failed requests are not accepted as training data. Progress is saved after each processed row. Keep the manifest closed in spreadsheet applications while the script runs.
+
 ## Optimisation and validation
 
 ```powershell
