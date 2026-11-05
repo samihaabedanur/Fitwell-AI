@@ -49,6 +49,18 @@ New photo requests are spaced by two seconds by default. Use `--delay 5` for a s
 
 Rerun the same preparation command to resume. Complete originals and prepared images are reused, image/mask checks still run, and existing manifest rows are retained and updated by split and image ID. Failed requests are not accepted as training data. Progress is saved after each processed row. Keep the manifest closed in spreadsheet applications while the script runs.
 
+### Optional Open Images mirror
+
+CVDF provides a public mirror of the Open Images bounding-box subset, resized to a maximum longest side of 1024 pixels. It does not contain every DMS photograph. The pilot can retrieve exact ImageIDs from this mirror instead of repeatedly requesting rate-limited originals:
+
+```powershell
+.venv\Scripts\python.exe training/prepare_dms_pilot.py --data datasets/dms/local_data/DMS_v1 --train 200 --validation 50 --test 25 --delay 5 --source cvdf
+```
+
+The downloader looks up the image ID across the mirror's train, validation and test directories; these source directories do not determine the DMS split. Existing DMS split assignments are preserved. Only HTTP 404 triggers a lookup in another source directory; rate limits and access errors stop or exclude the request. Download URLs are recorded separately from original attribution URLs in the manifest. The same dimension and orientation/content checks apply. Review accepted image/mask pairs visually. Unavailable or mismatched photographs remain excluded.
+
+Source: https://github.com/cvdfoundation/open-images-dataset . Mirror lookup and stop behaviour have been checked with simulated responses; full recovery on the user's network has not been verified.
+
 ## Optimisation and validation
 
 ```powershell
