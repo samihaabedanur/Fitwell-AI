@@ -48,7 +48,27 @@ def download_original(url, destination, delay):
         partial.unlink(missing_ok=True)
 
 
-COLUMNS = ['split', 'image_id', 'image_path', 'label_path', 'source_url', 'source_license', 'status', 'detail']
+def download_cvdf(image_id, destination, delay):
+    """Look up an exact Open Images ID; DMS split names are independent."""
+    if len(image_id) != 16 or any(c not in '0123456789abcdefABCDEF' for c in image_id):
+        raise ValueError('Expected a 16-character Open Images image ID')
+    note = destination.with_suffix('.url.txt')
+    if destination.is_file() and note.is_file():
+        return note.read_text(encoding='utf-8').strip()
+    for source_split in ('train', 'validation', 'test'):
+        url = f'https://open-images-dataset.s3.amazonaws.com/{source_split}/{image_id.lower()}.jpg'
+        try:
+            download_original(url, destination, delay)
+            note.write_text(url, encoding='utf-8')
+            return url
+        except HTTPError as error:
+            if error.code == 404:
+                continue
+            raise
+    raise FileNotFoundError('Image ID is not available in the CVDF mirror; keep excluded')
+
+
+COLUMNS = ['split', 'image_id', 'image_path', 'label_path', 'source_url', 'source_license', 'status', 'detail', 'download_url']
 
 
 def save_manifest(path, rows):
@@ -67,6 +87,7 @@ def main():
     parser.add_argument('--validation', type=int, default=50)
     parser.add_argument('--test', type=int, default=25)
     parser.add_argument('--delay', type=float, default=2.0, help='Seconds between new photo requests (minimum 1)')
+    parser.add_argument('--source', choices=['original', 'cvdf'], default='original', help='Photo source; CVDF mirrors only part of Open Images')
     args = parser.parse_args()
     if not np.isfinite(args.delay) or args.delay < 1:
         parser.error('--delay must be finite and at least 1 second')
@@ -102,7 +123,8 @@ def main():
         label_path = inside(root, item['label_path'])
         url = item['openimages_metadata'].get('OriginalURL', '')
         image_id = str(item['openimages_metadata'].get('ImageID') or image_path.stem)
-        row = {'split': split, 'image_id': image_id, 'image_path': str(image_path.relative_to(root)), 'label_path': str(label_path.relative_to(root)), 'source_url': url, 'source_license': item['openimages_metadata'].get('License', ''), 'status': '', 'detail': ''}
+        previous = outcomes.get((split, image_id), {})
+        row = {'split': split, 'image_id': image_id, 'image_path': str(image_path.relative_to(root)), 'label_path': str(label_path.relative_to(root)), 'source_url': url, 'source_license': item['openimages_metadata'].get('License', ''), 'status': '', 'detail': '', 'download_url': previous.get('download_url', '')}
         try:
             if image_id in seen:
                 raise ValueError('Duplicate image ID across selected records')
@@ -110,10 +132,15 @@ def main():
             if not label_path.is_file():
                 raise FileNotFoundError('Matching mask not found')
             if not image_path.exists():
-                if not url.startswith(('https://', 'http://')):
-                    raise ValueError('Original image URL missing')
                 original = originals / f'{split}_{image_path.stem}.img'
-                download_original(url, original, args.delay)
+                if args.source == 'cvdf':
+                    original = originals / f'{split}_{image_path.stem}_cvdf.img'
+                    row['download_url'] = download_cvdf(image_id, original, args.delay)
+                else:
+                    if not url.startswith(('https://', 'http://')):
+                        raise ValueError('Original image URL missing')
+                    download_original(url, original, args.delay)
+                    row['download_url'] = url
                 with Image.open(original) as source:
                     image = ImageOps.exif_transpose(source).convert('RGB')
                 with Image.open(label_path) as label:
