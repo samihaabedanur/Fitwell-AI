@@ -21,7 +21,7 @@ Large archives are stored under [GitHub Releases](https://github.com/samihaabeda
 | DTD | [Image index](dtd/images.csv), [category counts](dtd/categories.csv) | [01 — DTD](../notebooks/01_dtd_analysis.ipynb) |
 | MatFuse | [Sample metadata](matfuse/samples.csv), [file inventory](matfuse/files.csv) | [02 — MatFuse](../notebooks/02_matfuse_analysis.ipynb) |
 | OpenSurfaces | [Materials](opensurfaces/materials.csv), [groups](opensurfaces/material_groups.csv), [photo licences](opensurfaces/photo_licenses.csv), [archive inventory](opensurfaces/archive_inventory.csv) | [03 — OpenSurfaces](../notebooks/03_opensurfaces_analysis.ipynb) |
-| ÖKOBAUDAT | [Environmental-record template](oekobaudat/environmental_records_template.csv) | [04 — Input preparation](../notebooks/04_oekobaudat_analysis.ipynb) |
+| ÖKOBAUDAT | [Environmental records and cleaning outputs](oekobaudat/) | [04 — ÖKOBAUDAT cleaning and analysis](../notebooks/04_oekobaudat_analysis.ipynb) |
 | DMS | [Taxonomy](dms/taxonomy.csv), [model classes](dms/model_classes.csv), [archive summary](dms/archive_summary.csv) | [05 — DMS](../notebooks/05_dms_analysis.ipynb) |
 
 The notebooks contain executed descriptive analyses. Texture categories, material vocabulary entries and archive file counts represent different quantities and are reported accordingly. No environmental measurements are included in the ÖKOBAUDAT template.

@@ -1,0 +1,46 @@
+{
+  "source": "ÖKOBAUDAT 2024-II CSV export",
+  "rows_before_cleaning": 44973,
+  "rows_after_cleaning": 44029,
+  "rows_removed": 944,
+  "duplicate_rows_removed": 167,
+  "missing_required_values_removed": 777,
+  "material_categories": 11,
+  "lifecycle_modules": {
+    "D": 4332,
+    "C3": 4115,
+    "C2": 3992,
+    "A1-A3": 3822,
+    "C4": 3772,
+    "C1": 3590,
+    "A5": 2974,
+    "A4": 2913,
+    "B1": 2159,
+    "B6": 2027,
+    "B2": 2000,
+    "B7": 1809,
+    "B3": 1734,
+    "B5": 1689,
+    "B4": 1685,
+    "A1": 472,
+    "A2": 472,
+    "A3": 472
+  },
+  "dataset_types": {
+    "average dataset": 27579,
+    "specific dataset": 13628,
+    "generic dataset": 2138,
+    "template dataset": 479,
+    "representative dataset": 205
+  },
+  "gwp_unit_counts": {
+    "pcs.": 24652,
+    "qm": 10010,
+    "kg": 4405,
+    "m3": 4059,
+    "m": 841,
+    "MJ": 50,
+    "kgkm": 9,
+    "a": 3
+  }
+}

@@ -40,6 +40,8 @@ Run the trained checkpoint with a local webcam from the repository root:
 
 The window continuously filters for relevant interior materials, then draws a box and trained material name over each selected region.
 
+Click a material box in the local camera window to see its ÖKOBAUDAT GWP-total lookup, unit, lifecycle module and source-record count. These are research summaries; a complete environmental assessment still depends on the product, quantity and full lifecycle modules.
+
 ## Camera prototype
 
 The interface is served through GitHub Pages from the `main` branch and `/docs` directory. Camera access requires an HTTPS connection, or localhost during development, and browser permission.
