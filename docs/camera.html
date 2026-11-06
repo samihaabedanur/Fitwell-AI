@@ -9,10 +9,11 @@
 <main>
 <header><strong>FITWELL AI</strong><a href="./">Fitwell home</a></header>
 <h1>Material camera</h1>
-<p>Scan the room for wood, fabric, tile, and painted surfaces. Tap a label to see its carbon impact reference.</p>
+<p>Move the camera slowly around the room. Fitwell keeps a running list of suggested material types. Tap a label or a list entry to see its environmental impact.</p>
 <div class="stage" id="stage"><p id="placeholder">Open your camera to start scanning.</p><video id="video" muted playsinline autoplay hidden></video><div class="overlay" id="overlay"></div></div>
 <div class="controls"><button id="start">Open camera</button><button id="stop" disabled>Stop camera</button></div>
 <p id="status" role="status">Camera frames are processed on your device. First use downloads the recognition model.</p>
+<section aria-labelledby="room-title"><h2 id="room-title">Room scan <span id="count">· 0 material types</span></h2><p id="empty">Suggested materials will appear here as you scan.</p><div id="room-list" class="controls"></div></section>
 <section id="impact" aria-live="polite" hidden><h2 id="material"></h2><p id="value"></p><p id="details"></p><a id="source" target="_blank" rel="noopener">View example ÖKOBAUDAT source record</a><small id="note"></small></section>
 </main>
 <script type="module">
@@ -22,7 +23,15 @@ const options = [
   ['Fabric/cloth', 'a textile surface, such as a curtain, rug or upholstered sofa'],
   ['Tile', 'a ceramic or porcelain tiled floor or wall with grout joints'],
   ['Paint/plaster/enamel', 'a smooth matte painted wall or ceiling'],
-  ['', 'a surface made of glass, metal, plastic, stone or exposed brick'],
+  ['Glass', 'a transparent glass window or glass partition'],
+  ['Metal', 'an exposed metal surface such as a steel frame'],
+  ['Concrete', 'an exposed concrete wall or floor'],
+  ['Brickwork', 'an exposed brick wall with mortar joints'],
+  ['Ceramic', 'a glazed ceramic object such as a ceramic basin'],
+  ['Stone, natural', 'a rough natural stone surface'],
+  ['Stone, polished', 'a polished stone countertop or marble surface'],
+  ['Asphalt', 'dark coarse asphalt paving'],
+  ['', 'a plastic surface or an electronic screen'],
   ['', 'a person, a blurry image or a mixture of unrelated objects'],
 ];
 const displayNames = new Map([
@@ -31,6 +40,8 @@ const displayNames = new Map([
 ]);
 const prompts = options.map(([, prompt]) => prompt);
 const names = new Map(options.map(([name,prompt]) => [prompt,name]));
+const detected = new Set();
+const displayName = name => displayNames.get(name) ?? name;
 const get = id => document.getElementById(id);
 const video = get('video'), overlay = get('overlay'), status = get('status');
 const start = get('start'), stop = get('stop');
@@ -40,9 +51,20 @@ const context = canvas.getContext('2d', {willReadFrequently:true});
 let stream, loading, session = 0;
 let work = Promise.resolve();
 
+function recordMaterial(name) {
+  if (detected.has(name)) return;
+  detected.add(name);
+  const entry = document.createElement('button');
+  entry.textContent = displayName(name);
+  entry.onclick = () => showImpact(name);
+  get('room-list').append(entry);
+  get('empty').hidden = true;
+  get('count').textContent = '· ' + detected.size + (detected.size === 1 ? ' material type' : ' material types');
+}
+
 function showImpact(name) {
   const [indicator,value,unit,module,count,url] = records.get(name);
-  get('material').textContent = displayNames.get(name);
+  get('material').textContent = displayName(name);
   get('value').textContent = Number(value).toLocaleString(undefined,{maximumFractionDigits:3}) + ' ' + unit.replace('per qm','/ m²').replace('per m3','/ m³').replace('per kg','/ kg');
   get('details').textContent = indicator + ' · ' + module + ' (production stage) · ' + count + ' datasets in the category lookup';
   get('source').href = url;
@@ -107,14 +129,15 @@ async function scan(id, classify, RawImage) {
       const button = tags[index];
       if (name && top.score >= .22 && top.score - result[1].score >= .035) {
         misses[index] = 0;
-        button.textContent = displayNames.get(name);
+        button.textContent = displayName(name);
         button.dataset.material = name;
+        recordMaterial(name);
         if (!button.isConnected) overlay.append(button);
       } else if (++misses[index] >= 2) {
         button.remove();
       }
     }
-    status.textContent = overlay.childElementCount ? 'Live suggestions · Tap a label to view its impact.' : 'No clear match yet. Hold the camera still and aim the center at one of the four supported surfaces.';
+    status.textContent = overlay.childElementCount ? 'Live suggestions · Tap a label to view its impact.' : 'No clear match yet. Move slowly or aim the center at a well-lit surface.';
     await new Promise(resolve => setTimeout(resolve,350));
   }
 }
@@ -123,6 +146,10 @@ start.onclick = async () => {
   const id = ++session;
   start.disabled = true;
   stop.disabled = false;
+  detected.clear();
+  get('room-list').replaceChildren();
+  get('count').textContent = '· 0 material types';
+  get('empty').hidden = false;
   get('impact').hidden = true;
   status.textContent = 'Waiting for camera permission…';
   try {
