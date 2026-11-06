@@ -9,7 +9,7 @@
 <main>
 <header><strong>FITWELL AI</strong><a href="./">Fitwell home</a></header>
 <h1>Material camera</h1>
-<p>Point your camera at a surface. Tap a material label to see its carbon impact reference.</p>
+<p>Scan the room for wood, fabric, tile, and painted surfaces. Tap a label to see its carbon impact reference.</p>
 <div class="stage" id="stage"><p id="placeholder">Open your camera to start scanning.</p><video id="video" muted playsinline autoplay hidden></video><div class="overlay" id="overlay"></div></div>
 <div class="controls"><button id="start">Open camera</button><button id="stop" disabled>Stop camera</button></div>
 <p id="status" role="status">Camera frames are processed on your device. First use downloads the recognition model.</p>
@@ -18,13 +18,17 @@
 <script type="module">
 const records = new Map([["Paint/plaster/enamel",["GWP-total","0.943331153064517","kg CO2e per kg","A1-A3","17","https://www.oekobaudat.de/OEKOBAU.DAT/resource/processes/35f6a697-d1a9-402f-9bc8-1e6a29d21b71?version=00.02.000"]],["Asphalt",["GWP-total","0.0942945931486732","kg CO2e per kg","A1-A3","6","https://www.oekobaudat.de/OEKOBAU.DAT/resource/processes/c6f77799-ed43-4ec4-bfc3-0759e41b60ca?version=20.26.070"]],["Stone, polished",["GWP-total","0.0290666452461174","kg CO2e per kg","A1-A3","9","https://www.oekobaudat.de/OEKOBAU.DAT/resource/processes/11078fc0-f5b5-46d2-8d6d-e93b2cea577b?version=00.02.000"]],["Stone, natural",["GWP-total","0.0290666452461174","kg CO2e per kg","A1-A3","9","https://www.oekobaudat.de/OEKOBAU.DAT/resource/processes/11078fc0-f5b5-46d2-8d6d-e93b2cea577b?version=00.02.000"]],["Glass",["GWP-total","1.34496525030678","kg CO2e per kg","A1-A3","3","https://www.oekobaudat.de/OEKOBAU.DAT/resource/processes/ceaaae5b-c6f1-4710-beb9-f38d0d94308c?version=00.02.000"]],["Ceramic",["GWP-total","12.329","kg CO2e per qm","A1-A3","2","https://www.oekobaudat.de/OEKOBAU.DAT/resource/processes/a6d60a75-7a4e-4dfc-87cc-fd40f68d279a?version=00.01.000"]],["Wood",["GWP-total","-677.13427141272","kg CO2e per m3","A1-A3","39","https://www.oekobaudat.de/OEKOBAU.DAT/resource/processes/792a0e85-3893-4aa3-8613-4898b9838fae?version=00.01.000"]],["Metal",["GWP-total","19.3","kg CO2e per kg","A1-A3","123","https://www.oekobaudat.de/OEKOBAU.DAT/resource/processes/d6736232-1016-46ab-a3f7-acade10da5d3?version=00.03.000"]],["Concrete",["GWP-total","0.295","kg CO2e per kg","A1-A3","56","https://www.oekobaudat.de/OEKOBAU.DAT/resource/processes/35f6a697-d1a9-402f-9bc8-1e6a29d21b71?version=00.02.000"]],["Tile",["GWP-total","6.3","kg CO2e per qm","A1-A3","32","https://www.oekobaudat.de/OEKOBAU.DAT/resource/processes/a6d60a75-7a4e-4dfc-87cc-fd40f68d279a?version=00.01.000"]],["Fabric/cloth",["GWP-total","5.705","kg CO2e per qm","A1-A3","25","https://www.oekobaudat.de/OEKOBAU.DAT/resource/processes/96b91067-c197-4a71-bc86-dee77e6607fe?version=00.02.000"]],["Brickwork",["GWP-total","11.02926873","kg CO2e per qm","A1-A3","61","https://www.oekobaudat.de/OEKOBAU.DAT/resource/processes/0fdca580-3027-493d-a3c7-815758bac55d?version=00.03.000"]]]);
 const options = [
-  ['Wood','wood grain or timber'], ['Concrete','exposed concrete'], ['Metal','metal surface'],
-  ['Glass','glass surface'], ['Ceramic','glazed ceramic'], ['Tile','a tiled surface with grout lines'],
-  ['Brickwork','brick masonry'], ['Paint/plaster/enamel','painted or plastered wall'],
-  ['Stone, natural','rough natural stone'], ['Stone, polished','polished stone'],
-  ['Asphalt','asphalt pavement'], ['Fabric/cloth','woven fabric or cloth'],
-  ['', 'plastic'], ['', 'a person or skin'], ['', 'a blurry or unclear scene'],
+  ['Wood', 'a wooden surface with visible grain, such as a floor or furniture'],
+  ['Fabric/cloth', 'a textile surface, such as a curtain, rug or upholstered sofa'],
+  ['Tile', 'a ceramic or porcelain tiled floor or wall with grout joints'],
+  ['Paint/plaster/enamel', 'a smooth matte painted wall or ceiling'],
+  ['', 'a surface made of glass, metal, plastic, stone or exposed brick'],
+  ['', 'a person, a blurry image or a mixture of unrelated objects'],
 ];
+const displayNames = new Map([
+  ['Wood', 'Wood'], ['Fabric/cloth', 'Fabric'], ['Tile', 'Tile'],
+  ['Paint/plaster/enamel', 'Painted surface'],
+]);
 const prompts = options.map(([, prompt]) => prompt);
 const names = new Map(options.map(([name,prompt]) => [prompt,name]));
 const get = id => document.getElementById(id);
@@ -38,7 +42,7 @@ let work = Promise.resolve();
 
 function showImpact(name) {
   const [indicator,value,unit,module,count,url] = records.get(name);
-  get('material').textContent = name;
+  get('material').textContent = displayNames.get(name);
   get('value').textContent = Number(value).toLocaleString(undefined,{maximumFractionDigits:3}) + ' ' + unit.replace('per qm','/ m²').replace('per m3','/ m³').replace('per kg','/ kg');
   get('details').textContent = indicator + ' · ' + module + ' (production stage) · ' + count + ' datasets in the category lookup';
   get('source').href = url;
@@ -70,7 +74,7 @@ function end(message) {
 stop.onclick = () => end('Camera stopped.');
 window.addEventListener('pagehide', () => end('Camera stopped.'));
 
-const regions = [[.25,.25],[.75,.25],[.25,.75],[.75,.75]];
+const regions = [[.5,.5],[.27,.23],[.73,.23],[.27,.77],[.73,.77]];
 const tags = regions.map(([x,y]) => {
   const button = document.createElement('button');
   button.className = 'tag';
@@ -81,31 +85,36 @@ const tags = regions.map(([x,y]) => {
 });
 
 async function scan(id, classify, RawImage) {
+  const misses = regions.map(() => 0);
+  const frame = document.createElement('canvas');
+  const frameContext = frame.getContext('2d');
   while (id === session) {
     if (video.readyState < 2) {
       await new Promise(resolve => setTimeout(resolve,200));
       continue;
     }
     resize();
-    let visible = 0;
+    frame.width = video.videoWidth;
+    frame.height = video.videoHeight;
+    frameContext.drawImage(video, 0, 0);
+    const side = Math.min(frame.width, frame.height) * .46;
     for (const [index,[x,y]] of regions.entries()) {
-      const side = Math.min(video.videoWidth,video.videoHeight)*.45;
-      context.drawImage(video, x*video.videoWidth-side/2,y*video.videoHeight-side/2,side,side,0,0,224,224);
+      context.drawImage(frame, x*frame.width-side/2, y*frame.height-side/2, side, side, 0, 0, 224, 224);
       const rgba = context.getImageData(0,0,224,224);
-      const result = await classify(new RawImage(rgba.data,224,224,4).rgb(),prompts,{hypothesis_template:'a close-up photo of {}'});
+      const result = await classify(new RawImage(rgba.data,224,224,4).rgb(),prompts,{hypothesis_template:'This is a photo of {}.'});
       if (id !== session) return;
       const top = result[0], name = names.get(top.label);
       const button = tags[index];
-      if (name && top.score >= .24 && top.score - result[1].score >= .05) {
-        button.textContent = name;
+      if (name && top.score >= .22 && top.score - result[1].score >= .035) {
+        misses[index] = 0;
+        button.textContent = displayNames.get(name);
         button.dataset.material = name;
         if (!button.isConnected) overlay.append(button);
-        visible++;
-      } else {
+      } else if (++misses[index] >= 2) {
         button.remove();
       }
     }
-    status.textContent = visible ? 'Live suggestions · Tap a label to view its impact.' : 'No clear match yet. Try moving closer to a well-lit surface.';
+    status.textContent = overlay.childElementCount ? 'Live suggestions · Tap a label to view its impact.' : 'No clear match yet. Hold the camera still and aim the center at one of the four supported surfaces.';
     await new Promise(resolve => setTimeout(resolve,350));
   }
 }
