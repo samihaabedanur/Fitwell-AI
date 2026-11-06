@@ -1045,15 +1045,17 @@ customElements.define('fw-scan',FwScan);
   <div class="camera-card"><h2>Identify a material</h2><p class="muted">Point the camera at a surface, then capture it for Fitwell analysis.</p>
     <video id="cameraVideo" autoplay playsinline muted></video><canvas id="cameraCanvas" hidden></canvas>
     <div class="camera-actions"><button class="camera-primary" id="captureMaterial" type="button">Capture and analyse</button><button class="camera-secondary" id="closeCamera" type="button">Close</button></div>
-    <p id="cameraStatus" class="muted" role="status"></p>
+    <p id="cameraStatus" class="muted" role="status"></p><div id="cameraResults" style="margin-top:10px;font-weight:600"></div>
   </div>
 </div>
 <script>
-(()=>{const btn=document.getElementById('cameraBtn'),modal=document.getElementById('cameraModal'),video=document.getElementById('cameraVideo'),canvas=document.getElementById('cameraCanvas'),status=document.getElementById('cameraStatus');let stream=null;
+(()=>{const btn=document.getElementById('cameraBtn'),modal=document.getElementById('cameraModal'),video=document.getElementById('cameraVideo'),canvas=document.getElementById('cameraCanvas'),status=document.getElementById('cameraStatus'),results=document.getElementById('cameraResults');let stream=null,classifier=null;
+const materialPrompts=['wood','fabric or cloth','carpet or rug','painted plaster','glass','metal','ceramic','tile','natural stone or marble','concrete','brick','paper','clear plastic','opaque plastic','leather','rubber','cork','wallpaper','wicker'];
+async function detectMaterials(image){if(!classifier){status.textContent='Loading material recognition model (first use may take a minute)…';const t=await import('https://cdn.jsdelivr.net/npm/@huggingface/transformers@3.7.2');t.env.allowLocalModels=false;classifier=await t.pipeline('zero-shot-image-classification','Xenova/clip-vit-base-patch32',{device:'wasm',dtype:'q8'})}status.textContent='Identifying materials…';const labels=materialPrompts.map(x=>'a photo of a '+x+' surface');const ranked=await classifier(image,labels);const good=ranked.filter(x=>x.score>=.08).slice(0,5);results.innerHTML='<div>Detected materials</div>'+good.map(x=>'<div style="font-weight:400;margin-top:4px">'+x.label.replace('a photo of a ','')+' · '+Math.round(x.score*100)+'%</div>').join('');return good}
 async function close(){if(stream)stream.getTracks().forEach(t=>t.stop());stream=null;video.srcObject=null;modal.classList.remove('open')}
 btn.onclick=async()=>{modal.classList.add('open');status.textContent='Requesting camera access…';try{stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:'environment'},width:{ideal:1280},height:{ideal:720}},audio:false});video.srcObject=stream;status.textContent='Camera ready.'}catch(e){status.textContent='Camera unavailable: '+e.message}}
 document.getElementById('closeCamera').onclick=close;
-document.getElementById('captureMaterial').onclick=()=>{if(!stream)return;canvas.width=video.videoWidth;canvas.height=video.videoHeight;canvas.getContext('2d').drawImage(video,0,0);const image=canvas.toDataURL('image/jpeg',.9);close();if(typeof useImage==='function'){useImage(image,'upload');location.hash='#search';if(typeof toast==='function')toast('Camera image captured. Reading it now.')}else{status.textContent='Image captured.'}};
+document.getElementById('captureMaterial').onclick=async()=>{if(!stream)return;canvas.width=video.videoWidth;canvas.height=video.videoHeight;canvas.getContext('2d').drawImage(video,0,0);const image=canvas.toDataURL('image/jpeg',.9);try{await detectMaterials(image);if(typeof useImage==='function'){useImage(image,'upload');location.hash='#search';if(typeof toast==='function')toast('Camera image captured and materials identified.')}}catch(e){status.textContent='Recognition failed: '+e.message;results.textContent='Try better lighting and point closer at one surface.'}};
 window.addEventListener('pagehide',close)
 })();
 </script>
