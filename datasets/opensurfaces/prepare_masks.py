@@ -5,7 +5,10 @@ from PIL import Image, ImageDraw
 
 ROOT = Path(__file__).resolve().parent; META = ROOT / 'local_data/extracted/opensurfaces'; IMAGE_ROOT = Path(r'E:\Fitwell-OpenSurfaces\images'); OUT = Path(r'E:\Fitwell-OpenSurfaces\prepared')
 OUT.mkdir(parents=True, exist_ok=True)
-with (Path('datasets/dms/model_classes.csv')).open(newline='', encoding='utf-8') as f: dms = {r['material_name'].lower(): int(r['label_id']) for r in csv.DictReader(f)}
+with (Path('datasets/dms/model_classes.csv')).open(newline='', encoding='utf-8') as f:
+    # Masks must contain the contiguous model channel (0..45), not DMS label_id
+    # values (which have gaps and are not the classifier output indices).
+    dms = {r['material_name'].lower(): int(r['model_channel']) for r in csv.DictReader(f)}
 aliases = {'brick': 'Brickwork', 'concrete': 'Concrete', 'glass': 'Glass', 'metal': 'Metal', 'mirror': 'Mirror', 'wood': 'Wood', 'tile': 'Tile', 'ceramic': 'Ceramic', 'asphalt': 'Asphalt', 'carpet': 'Carpet/rug', 'fabric': 'Fabric/cloth', 'paper': 'Paper', 'stone': 'Stone, natural', 'granite/marble': 'Stone, natural', 'painted': 'Paint/plaster/enamel'}
 substances = {int(x['pk']): x['fields'] for x in json.loads((META / 'shapes.shapesubstance.json').read_text(encoding='utf-8'))}
 shapes = json.loads((META / 'shapes.materialshape.json').read_text(encoding='utf-8'))

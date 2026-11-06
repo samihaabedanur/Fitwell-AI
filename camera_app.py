@@ -48,7 +48,7 @@ def draw_impact_panel(frame, record, label):
         cv2.putText(frame, line, (x + 12, y + 19 + index * 22), cv2.FONT_HERSHEY_SIMPLEX, .36 if index else .44, (210, 255, 210) if index == 0 else (240, 240, 240), 1, cv2.LINE_AA)
 
 def main():
-    p = argparse.ArgumentParser(); p.add_argument("--checkpoint", type=Path, default=Path("training/runs/dms-expanded/best.pt")); p.add_argument("--camera", type=int, default=0); p.add_argument("--image", type=Path, help="Analyze one image instead of opening the webcam"); p.add_argument("--confidence", type=float, default=.15); p.add_argument("--every", type=int, default=3)
+    p = argparse.ArgumentParser(); p.add_argument("--checkpoint", type=Path, default=Path("training/runs/dms-all-research/best.pt")); p.add_argument("--camera", type=int, default=0); p.add_argument("--image", type=Path, help="Analyze one image instead of opening the webcam"); p.add_argument("--confidence", type=float, default=.15); p.add_argument("--every", type=int, default=3)
     a = p.parse_args(); repo = Path(__file__).resolve().parent; checkpoint = (repo / a.checkpoint).resolve()
     if not checkpoint.is_file(): raise SystemExit(f"Checkpoint not found: {checkpoint}")
     with (repo / "datasets/dms/model_classes.csv").open(newline="", encoding="utf-8") as f: names = {int(r["model_channel"]): r["material_name"] for r in csv.DictReader(f)}
