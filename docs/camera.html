@@ -1,0 +1,158 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Fitwell AI · Material Camera</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#eef1e9;color:#19352d;font:16px/1.5 system-ui,sans-serif}main{max-width:920px;margin:auto;padding:24px}header{display:flex;justify-content:space-between;gap:12px;border-bottom:1px solid #bdcbbf;padding-bottom:14px}a{color:inherit}h1{font:clamp(2.6rem,8vw,5rem)/1 Georgia,serif;margin:30px 0 12px}p{margin:0 0 14px}.stage{position:relative;background:#18342b;aspect-ratio:4/3;overflow:hidden;border-radius:16px;color:white}.stage>p{position:absolute;inset:0;display:grid;place-items:center;text-align:center;padding:20px}.stage video{width:100%;height:100%;object-fit:contain;display:block}.overlay{position:absolute;pointer-events:none}.tag{position:absolute;pointer-events:auto;transform:translate(-50%,-50%);box-shadow:0 2px 10px #0007;font-size:.86rem;max-width:48%;overflow-wrap:anywhere}.controls{display:flex;gap:12px;flex-wrap:wrap;align-items:center;margin:14px 0}button{font:inherit;font-weight:650;border:0;border-radius:10px;padding:10px 15px;min-height:44px;background:#c8ef88;color:#19352d;cursor:pointer}button:disabled{opacity:.5;cursor:default}button:focus-visible,a:focus-visible{outline:3px solid #2372c6;outline-offset:3px}#impact{border:1px solid #bdcbbf;background:#fafbf7;border-radius:16px;padding:20px;margin-top:14px}h2{margin:0 0 8px}#value{font-size:1.35rem;font-weight:700}small{display:block;margin-top:8px} [hidden]{display:none!important}
+</style>
+<main>
+<header><strong>FITWELL AI</strong><a href="./">Fitwell home</a></header>
+<h1>Material camera</h1>
+<p>Point your camera at a surface. Tap a material label to see its carbon impact reference.</p>
+<div class="stage" id="stage"><p id="placeholder">Open your camera to start scanning.</p><video id="video" muted playsinline autoplay hidden></video><div class="overlay" id="overlay"></div></div>
+<div class="controls"><button id="start">Open camera</button><button id="stop" disabled>Stop camera</button></div>
+<p id="status" role="status">Camera frames are processed on your device. First use downloads the recognition model.</p>
+<section id="impact" aria-live="polite" hidden><h2 id="material"></h2><p id="value"></p><p id="details"></p><a id="source" target="_blank" rel="noopener">View example ÖKOBAUDAT source record</a><small id="note"></small></section>
+</main>
+<script type="module">
+const records = new Map([["Paint/plaster/enamel",["GWP-total","0.943331153064517","kg CO2e per kg","A1-A3","17","https://www.oekobaudat.de/OEKOBAU.DAT/resource/processes/35f6a697-d1a9-402f-9bc8-1e6a29d21b71?version=00.02.000"]],["Asphalt",["GWP-total","0.0942945931486732","kg CO2e per kg","A1-A3","6","https://www.oekobaudat.de/OEKOBAU.DAT/resource/processes/c6f77799-ed43-4ec4-bfc3-0759e41b60ca?version=20.26.070"]],["Stone, polished",["GWP-total","0.0290666452461174","kg CO2e per kg","A1-A3","9","https://www.oekobaudat.de/OEKOBAU.DAT/resource/processes/11078fc0-f5b5-46d2-8d6d-e93b2cea577b?version=00.02.000"]],["Stone, natural",["GWP-total","0.0290666452461174","kg CO2e per kg","A1-A3","9","https://www.oekobaudat.de/OEKOBAU.DAT/resource/processes/11078fc0-f5b5-46d2-8d6d-e93b2cea577b?version=00.02.000"]],["Glass",["GWP-total","1.34496525030678","kg CO2e per kg","A1-A3","3","https://www.oekobaudat.de/OEKOBAU.DAT/resource/processes/ceaaae5b-c6f1-4710-beb9-f38d0d94308c?version=00.02.000"]],["Ceramic",["GWP-total","12.329","kg CO2e per qm","A1-A3","2","https://www.oekobaudat.de/OEKOBAU.DAT/resource/processes/a6d60a75-7a4e-4dfc-87cc-fd40f68d279a?version=00.01.000"]],["Wood",["GWP-total","-677.13427141272","kg CO2e per m3","A1-A3","39","https://www.oekobaudat.de/OEKOBAU.DAT/resource/processes/792a0e85-3893-4aa3-8613-4898b9838fae?version=00.01.000"]],["Metal",["GWP-total","19.3","kg CO2e per kg","A1-A3","123","https://www.oekobaudat.de/OEKOBAU.DAT/resource/processes/d6736232-1016-46ab-a3f7-acade10da5d3?version=00.03.000"]],["Concrete",["GWP-total","0.295","kg CO2e per kg","A1-A3","56","https://www.oekobaudat.de/OEKOBAU.DAT/resource/processes/35f6a697-d1a9-402f-9bc8-1e6a29d21b71?version=00.02.000"]],["Tile",["GWP-total","6.3","kg CO2e per qm","A1-A3","32","https://www.oekobaudat.de/OEKOBAU.DAT/resource/processes/a6d60a75-7a4e-4dfc-87cc-fd40f68d279a?version=00.01.000"]],["Fabric/cloth",["GWP-total","5.705","kg CO2e per qm","A1-A3","25","https://www.oekobaudat.de/OEKOBAU.DAT/resource/processes/96b91067-c197-4a71-bc86-dee77e6607fe?version=00.02.000"]],["Brickwork",["GWP-total","11.02926873","kg CO2e per qm","A1-A3","61","https://www.oekobaudat.de/OEKOBAU.DAT/resource/processes/0fdca580-3027-493d-a3c7-815758bac55d?version=00.03.000"]]]);
+const options = [
+  ['Wood','wood grain or timber'], ['Concrete','exposed concrete'], ['Metal','metal surface'],
+  ['Glass','glass surface'], ['Ceramic','glazed ceramic'], ['Tile','a tiled surface with grout lines'],
+  ['Brickwork','brick masonry'], ['Paint/plaster/enamel','painted or plastered wall'],
+  ['Stone, natural','rough natural stone'], ['Stone, polished','polished stone'],
+  ['Asphalt','asphalt pavement'], ['Fabric/cloth','woven fabric or cloth'],
+  ['', 'plastic'], ['', 'a person or skin'], ['', 'a blurry or unclear scene'],
+];
+const prompts = options.map(([, prompt]) => prompt);
+const names = new Map(options.map(([name,prompt]) => [prompt,name]));
+const get = id => document.getElementById(id);
+const video = get('video'), overlay = get('overlay'), status = get('status');
+const start = get('start'), stop = get('stop');
+const canvas = document.createElement('canvas');
+canvas.width = canvas.height = 224;
+const context = canvas.getContext('2d', {willReadFrequently:true});
+let stream, loading, session = 0;
+let work = Promise.resolve();
+
+function showImpact(name) {
+  const [indicator,value,unit,module,count,url] = records.get(name);
+  get('material').textContent = name;
+  get('value').textContent = Number(value).toLocaleString(undefined,{maximumFractionDigits:3}) + ' ' + unit.replace('per qm','/ m²').replace('per m3','/ m³').replace('per kg','/ kg');
+  get('details').textContent = indicator + ' · ' + module + ' (production stage) · ' + count + ' datasets in the category lookup';
+  get('source').href = url;
+  get('note').textContent = 'The camera suggests a material category. This reference estimate depends on the actual product and covers the stated lifecycle stage.' + (Number(value)<0 ? ' A negative production-stage value can reflect stored biogenic carbon. Later stages can change the total.' : '');
+  get('impact').hidden = false;
+  get('impact').scrollIntoView({block:'nearest'});
+}
+
+function resize() {
+  if (!video.videoWidth || video.hidden) return;
+  const scale = Math.min(video.clientWidth/video.videoWidth, video.clientHeight/video.videoHeight);
+  const w = video.videoWidth*scale, h = video.videoHeight*scale;
+  Object.assign(overlay.style,{width:w+'px',height:h+'px',left:(video.clientWidth-w)/2+'px',top:(video.clientHeight-h)/2+'px'});
+}
+new ResizeObserver(resize).observe(get('stage'));
+
+function end(message) {
+  session++;
+  stream?.getTracks().forEach(track => track.stop());
+  stream = null;
+  video.srcObject = null;
+  video.hidden = true;
+  overlay.replaceChildren();
+  get('placeholder').hidden = false;
+  start.disabled = false;
+  stop.disabled = true;
+  status.textContent = message;
+}
+stop.onclick = () => end('Camera stopped.');
+window.addEventListener('pagehide', () => end('Camera stopped.'));
+
+const regions = [[.25,.25],[.75,.25],[.25,.75],[.75,.75]];
+const tags = regions.map(([x,y]) => {
+  const button = document.createElement('button');
+  button.className = 'tag';
+  button.style.left = (x*100)+'%';
+  button.style.top = (y*100)+'%';
+  button.onclick = () => showImpact(button.dataset.material);
+  return button;
+});
+
+async function scan(id, classify, RawImage) {
+  while (id === session) {
+    if (video.readyState < 2) {
+      await new Promise(resolve => setTimeout(resolve,200));
+      continue;
+    }
+    resize();
+    let visible = 0;
+    for (const [index,[x,y]] of regions.entries()) {
+      const side = Math.min(video.videoWidth,video.videoHeight)*.45;
+      context.drawImage(video, x*video.videoWidth-side/2,y*video.videoHeight-side/2,side,side,0,0,224,224);
+      const rgba = context.getImageData(0,0,224,224);
+      const result = await classify(new RawImage(rgba.data,224,224,4).rgb(),prompts,{hypothesis_template:'a close-up photo of {}'});
+      if (id !== session) return;
+      const top = result[0], name = names.get(top.label);
+      const button = tags[index];
+      if (name && top.score >= .24 && top.score - result[1].score >= .05) {
+        button.textContent = name;
+        button.dataset.material = name;
+        if (!button.isConnected) overlay.append(button);
+        visible++;
+      } else {
+        button.remove();
+      }
+    }
+    status.textContent = visible ? 'Live suggestions · Tap a label to view its impact.' : 'No clear match yet. Try moving closer to a well-lit surface.';
+    await new Promise(resolve => setTimeout(resolve,350));
+  }
+}
+
+start.onclick = async () => {
+  const id = ++session;
+  start.disabled = true;
+  stop.disabled = false;
+  get('impact').hidden = true;
+  status.textContent = 'Waiting for camera permission…';
+  try {
+    if (!navigator.mediaDevices?.getUserMedia) throw new Error('Open this page in a browser over HTTPS to use the camera.');
+    const camera = await navigator.mediaDevices.getUserMedia({audio:false,video:{facingMode:{ideal:'environment'},width:{ideal:640}}});
+    if (id !== session) {
+      camera.getTracks().forEach(track => track.stop());
+      return;
+    }
+    stream = camera;
+    camera.getVideoTracks()[0].addEventListener('ended',() => {
+      if (id === session) end('Camera disconnected. Open it again to resume.');
+    });
+    video.srcObject = stream;
+    video.hidden = false;
+    get('placeholder').hidden = true;
+    await video.play();
+    if (id !== session) return;
+    status.textContent = 'Loading the recognition model. The first download may take a moment…';
+    loading ??= import('https://cdn.jsdelivr.net/npm/@huggingface/transformers@3.7.2')
+      .then(async ({pipeline,RawImage,env}) => {
+        env.allowLocalModels = false;
+        env.backends.onnx.wasm.numThreads = 1;
+        const classify = await pipeline('zero-shot-image-classification','Xenova/clip-vit-base-patch32',{device:'wasm',dtype:'q8'});
+        return {classify,RawImage};
+      }).catch(error => { loading = null; throw error; });
+    const {classify,RawImage} = await loading;
+    if (id !== session) return;
+    status.textContent = 'Scanning for materials…';
+    work = work.catch(() => {}).then(() => scan(id,classify,RawImage));
+    await work;
+  } catch (error) {
+    if (id !== session) return;
+    const message = error.name === 'NotAllowedError' ? 'Camera access was denied. Allow it in your browser settings and try again.'
+      : error.name === 'NotFoundError' ? 'No camera was found on this device.'
+      : stream ? 'Recognition could not start or continue. Check your connection and reopen the camera.'
+      : error.message;
+    end(message);
+  }
+};
+</script>
+</html>
