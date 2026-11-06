@@ -12,13 +12,16 @@ body.scanning{overflow:hidden}
 .scanning #status{position:fixed;z-index:11;left:12px;right:12px;bottom:max(12px,env(safe-area-inset-bottom));margin:0;padding:10px 14px;border-radius:12px;background:#18342be8;color:white;pointer-events:none}
 .scanning #impact{position:fixed;z-index:13;left:12px;right:12px;bottom:max(12px,env(safe-area-inset-bottom));max-height:50dvh;overflow:auto;margin:0;box-shadow:0 8px 30px #0006}
 #close-impact{float:right;margin-left:10px}
+.stage.photo{aspect-ratio:auto;overflow:visible;background:none}
+#photo{display:block;width:auto;max-width:100%;height:auto;max-height:75vh;margin:auto;border-radius:12px;cursor:crosshair}
+.photo .tag{font-size:.78rem;padding:6px 9px}
 </style>
 <main>
 <header><strong>FITWELL AI</strong><a href="./">Fitwell home</a></header>
 <h1>Material camera</h1>
 <p>Move the camera slowly around the room. Fitwell keeps a running list of suggested material types. Tap a label or a list entry to see its environmental impact.</p>
-<div class="stage" id="stage"><p id="placeholder">Open your camera to start scanning.</p><video id="video" muted playsinline autoplay hidden></video><div class="overlay" id="overlay"></div></div>
-<div class="controls"><button id="start">Open camera</button><button id="stop" disabled>Stop camera</button></div>
+<div class="stage" id="stage"><p id="placeholder">Open your camera to start scanning.</p><video id="video" muted playsinline autoplay hidden></video><img id="photo" alt="Uploaded material inspiration" hidden><div class="overlay" id="overlay"></div></div>
+<div class="controls"><button id="upload" type="button">Upload photo</button><input id="photo-file" type="file" accept="image/*" hidden><button id="start">Open camera</button><button id="stop" disabled>Stop camera</button></div>
 <p id="status" role="status">Camera frames are processed on your device. First use downloads the recognition model.</p>
 <section aria-labelledby="room-title"><h2 id="room-title">Room scan <span id="count">· 0 material types</span></h2><p id="empty">Suggested materials will appear here as you scan.</p><div id="room-list" class="controls"></div></section>
 <section id="impact" aria-live="polite" hidden><button id="close-impact" type="button">Close</button><h2 id="material"></h2><p id="value"></p><p id="details"></p><a id="source" target="_blank" rel="noopener">View example ÖKOBAUDAT source record</a><small id="note"></small></section>
@@ -158,15 +161,118 @@ async function scan(id, classify, RawImage) {
   }
 }
 
-start.onclick = async () => {
-  const id = ++session;
-  start.disabled = true;
-  stop.disabled = false;
+function loadRecognizer() {
+  loading ??= import('https://cdn.jsdelivr.net/npm/@huggingface/transformers@3.7.2')
+      .then(async ({pipeline,RawImage,env}) => {
+        env.allowLocalModels = false;
+        env.backends.onnx.wasm.numThreads = 1;
+        const classify = await pipeline('zero-shot-image-classification','Xenova/clip-vit-base-patch32',{device:'wasm',dtype:'q8'});
+        return {classify,RawImage};
+      }).catch(error => { loading = null; throw error; });
+  return loading;
+}
+
+const photo = get('photo');
+const photoFile = get('photo-file');
+let photoUrl;
+
+function clearPhoto() {
+  photo.hidden = true;
+  photo.removeAttribute('src');
+  get('stage').classList.remove('photo');
+  if (photoUrl) URL.revokeObjectURL(photoUrl);
+  photoUrl = null;
+}
+
+function clearResults() {
   detected.clear();
   get('room-list').replaceChildren();
   get('count').textContent = '· 0 material types';
   get('empty').hidden = false;
   get('impact').hidden = true;
+}
+
+function positionPhotoLabels() {
+  if (photo.hidden) return;
+  Object.assign(overlay.style, {
+    left: photo.offsetLeft + 'px', top: photo.offsetTop + 'px',
+    width: photo.clientWidth + 'px', height: photo.clientHeight + 'px',
+  });
+}
+new ResizeObserver(positionPhotoLabels).observe(photo);
+
+function analyzePhoto(points, selected = false) {
+  const id = session;
+  status.textContent = 'Analyzing photo surfaces…';
+  work = work.catch(() => {}).then(async () => {
+    if (id !== session) return;
+    const {classify, RawImage} = await loadRecognizer();
+    if (id !== session) return;
+    const side = Math.min(photo.naturalWidth, photo.naturalHeight) * (selected ? .20 : .29);
+    for (const [x,y] of points) {
+      const left = Math.max(0, Math.min(photo.naturalWidth - side, x*photo.naturalWidth - side/2));
+      const top = Math.max(0, Math.min(photo.naturalHeight - side, y*photo.naturalHeight - side/2));
+      context.drawImage(photo, left, top, side, side, 0, 0, 224, 224);
+      const rgba = context.getImageData(0,0,224,224);
+      const [best, next] = await classify(new RawImage(rgba.data,224,224,4).rgb(), prompts, {hypothesis_template:'This is a photo of {}.'});
+      if (id !== session) return;
+      const name = names.get(best.label);
+      if (!name || best.score < .22 || best.score - next.score < .035) continue;
+      const label = document.createElement('button');
+      label.className = 'tag';
+      label.style.left = x*100 + '%';
+      label.style.top = y*100 + '%';
+      label.textContent = displayName(name);
+      label.onclick = () => showImpact(name);
+      overlay.append(label);
+      recordMaterial(name);
+      if (selected) showImpact(name);
+    }
+    status.textContent = overlay.childElementCount
+      ? 'Tap a material label for its specs, or tap another area to check that surface.'
+      : 'No clear matches yet. Tap a distinct surface on the photo to check it.';
+  }).catch(() => {
+    if (id === session) status.textContent = 'Photo recognition could not run. Check your connection and try uploading again.';
+  });
+}
+
+get('upload').onclick = () => photoFile.click();
+photoFile.onchange = async () => {
+  const file = photoFile.files[0];
+  photoFile.value = '';
+  if (!file) return;
+  end('Opening photo…');
+  clearPhoto();
+  clearResults();
+  const id = session;
+  photoUrl = URL.createObjectURL(file);
+  photo.src = photoUrl;
+  try {
+    await photo.decode();
+    if (id !== session) return;
+    get('placeholder').hidden = true;
+    get('stage').classList.add('photo');
+    photo.hidden = false;
+    positionPhotoLabels();
+    const centers = [.17,.5,.83];
+    analyzePhoto(centers.flatMap(y => centers.map(x => [x,y])));
+  } catch {
+    if (id === session) status.textContent = 'This image could not open. Try a JPG or PNG.';
+  }
+};
+photo.onclick = event => {
+  const bounds = photo.getBoundingClientRect();
+  analyzePhoto([[(event.clientX-bounds.left)/bounds.width, (event.clientY-bounds.top)/bounds.height]], true);
+};
+
+start.onclick = async () => {
+  const id = ++session;
+  start.disabled = true;
+  stop.disabled = false;
+  clearPhoto();
+  overlay.replaceChildren();
+  get('placeholder').hidden = false;
+  clearResults();
   status.textContent = 'Waiting for camera permission…';
   try {
     if (!navigator.mediaDevices?.getUserMedia) throw new Error('Open this page in a browser over HTTPS to use the camera.');
@@ -186,14 +292,7 @@ start.onclick = async () => {
     await video.play();
     if (id !== session) return;
     status.textContent = 'Loading the recognition model. The first download may take a moment…';
-    loading ??= import('https://cdn.jsdelivr.net/npm/@huggingface/transformers@3.7.2')
-      .then(async ({pipeline,RawImage,env}) => {
-        env.allowLocalModels = false;
-        env.backends.onnx.wasm.numThreads = 1;
-        const classify = await pipeline('zero-shot-image-classification','Xenova/clip-vit-base-patch32',{device:'wasm',dtype:'q8'});
-        return {classify,RawImage};
-      }).catch(error => { loading = null; throw error; });
-    const {classify,RawImage} = await loading;
+    const {classify,RawImage} = await loadRecognizer();
     if (id !== session) return;
     status.textContent = 'Scanning for materials…';
     work = work.catch(() => {}).then(() => scan(id,classify,RawImage));
