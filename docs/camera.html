@@ -5,6 +5,13 @@
 <title>Fitwell AI · Material Camera</title>
 <style>
 *{box-sizing:border-box}body{margin:0;background:#eef1e9;color:#19352d;font:16px/1.5 system-ui,sans-serif}main{max-width:920px;margin:auto;padding:24px}header{display:flex;justify-content:space-between;gap:12px;border-bottom:1px solid #bdcbbf;padding-bottom:14px}a{color:inherit}h1{font:clamp(2.6rem,8vw,5rem)/1 Georgia,serif;margin:30px 0 12px}p{margin:0 0 14px}.stage{position:relative;background:#18342b;aspect-ratio:4/3;overflow:hidden;border-radius:16px;color:white}.stage>p{position:absolute;inset:0;display:grid;place-items:center;text-align:center;padding:20px}.stage video{width:100%;height:100%;object-fit:contain;display:block}.overlay{position:absolute;pointer-events:none}.tag{position:absolute;pointer-events:auto;transform:translate(-50%,-50%);box-shadow:0 2px 10px #0007;font-size:.86rem;max-width:48%;overflow-wrap:anywhere}.controls{display:flex;gap:12px;flex-wrap:wrap;align-items:center;margin:14px 0}button{font:inherit;font-weight:650;border:0;border-radius:10px;padding:10px 15px;min-height:44px;background:#c8ef88;color:#19352d;cursor:pointer}button:disabled{opacity:.5;cursor:default}button:focus-visible,a:focus-visible{outline:3px solid #2372c6;outline-offset:3px}#impact{border:1px solid #bdcbbf;background:#fafbf7;border-radius:16px;padding:20px;margin-top:14px}h2{margin:0 0 8px}#value{font-size:1.35rem;font-weight:700}small{display:block;margin-top:8px} [hidden]{display:none!important}
+body.scanning{overflow:hidden}
+.scanning .stage{position:fixed;inset:0;z-index:10;aspect-ratio:auto;border-radius:0}
+.scanning .stage video{object-fit:cover}
+.scanning #stop{position:fixed;z-index:12;top:max(12px,env(safe-area-inset-top));right:12px}
+.scanning #status{position:fixed;z-index:11;left:12px;right:12px;bottom:max(12px,env(safe-area-inset-bottom));margin:0;padding:10px 14px;border-radius:12px;background:#18342be8;color:white;pointer-events:none}
+.scanning #impact{position:fixed;z-index:13;left:12px;right:12px;bottom:max(12px,env(safe-area-inset-bottom));max-height:50dvh;overflow:auto;margin:0;box-shadow:0 8px 30px #0006}
+#close-impact{float:right;margin-left:10px}
 </style>
 <main>
 <header><strong>FITWELL AI</strong><a href="./">Fitwell home</a></header>
@@ -14,7 +21,7 @@
 <div class="controls"><button id="start">Open camera</button><button id="stop" disabled>Stop camera</button></div>
 <p id="status" role="status">Camera frames are processed on your device. First use downloads the recognition model.</p>
 <section aria-labelledby="room-title"><h2 id="room-title">Room scan <span id="count">· 0 material types</span></h2><p id="empty">Suggested materials will appear here as you scan.</p><div id="room-list" class="controls"></div></section>
-<section id="impact" aria-live="polite" hidden><h2 id="material"></h2><p id="value"></p><p id="details"></p><a id="source" target="_blank" rel="noopener">View example ÖKOBAUDAT source record</a><small id="note"></small></section>
+<section id="impact" aria-live="polite" hidden><button id="close-impact" type="button">Close</button><h2 id="material"></h2><p id="value"></p><p id="details"></p><a id="source" target="_blank" rel="noopener">View example ÖKOBAUDAT source record</a><small id="note"></small></section>
 </main>
 <script type="module">
 const records = new Map([["Paint/plaster/enamel",["GWP-total","0.943331153064517","kg CO2e per kg","A1-A3","17","https://www.oekobaudat.de/OEKOBAU.DAT/resource/processes/35f6a697-d1a9-402f-9bc8-1e6a29d21b71?version=00.02.000"]],["Asphalt",["GWP-total","0.0942945931486732","kg CO2e per kg","A1-A3","6","https://www.oekobaudat.de/OEKOBAU.DAT/resource/processes/c6f77799-ed43-4ec4-bfc3-0759e41b60ca?version=20.26.070"]],["Stone, polished",["GWP-total","0.0290666452461174","kg CO2e per kg","A1-A3","9","https://www.oekobaudat.de/OEKOBAU.DAT/resource/processes/11078fc0-f5b5-46d2-8d6d-e93b2cea577b?version=00.02.000"]],["Stone, natural",["GWP-total","0.0290666452461174","kg CO2e per kg","A1-A3","9","https://www.oekobaudat.de/OEKOBAU.DAT/resource/processes/11078fc0-f5b5-46d2-8d6d-e93b2cea577b?version=00.02.000"]],["Glass",["GWP-total","1.34496525030678","kg CO2e per kg","A1-A3","3","https://www.oekobaudat.de/OEKOBAU.DAT/resource/processes/ceaaae5b-c6f1-4710-beb9-f38d0d94308c?version=00.02.000"]],["Ceramic",["GWP-total","12.329","kg CO2e per qm","A1-A3","2","https://www.oekobaudat.de/OEKOBAU.DAT/resource/processes/a6d60a75-7a4e-4dfc-87cc-fd40f68d279a?version=00.01.000"]],["Wood",["GWP-total","-677.13427141272","kg CO2e per m3","A1-A3","39","https://www.oekobaudat.de/OEKOBAU.DAT/resource/processes/792a0e85-3893-4aa3-8613-4898b9838fae?version=00.01.000"]],["Metal",["GWP-total","19.3","kg CO2e per kg","A1-A3","123","https://www.oekobaudat.de/OEKOBAU.DAT/resource/processes/d6736232-1016-46ab-a3f7-acade10da5d3?version=00.03.000"]],["Concrete",["GWP-total","0.295","kg CO2e per kg","A1-A3","56","https://www.oekobaudat.de/OEKOBAU.DAT/resource/processes/35f6a697-d1a9-402f-9bc8-1e6a29d21b71?version=00.02.000"]],["Tile",["GWP-total","6.3","kg CO2e per qm","A1-A3","32","https://www.oekobaudat.de/OEKOBAU.DAT/resource/processes/a6d60a75-7a4e-4dfc-87cc-fd40f68d279a?version=00.01.000"]],["Fabric/cloth",["GWP-total","5.705","kg CO2e per qm","A1-A3","25","https://www.oekobaudat.de/OEKOBAU.DAT/resource/processes/96b91067-c197-4a71-bc86-dee77e6607fe?version=00.02.000"]],["Brickwork",["GWP-total","11.02926873","kg CO2e per qm","A1-A3","61","https://www.oekobaudat.de/OEKOBAU.DAT/resource/processes/0fdca580-3027-493d-a3c7-815758bac55d?version=00.03.000"]]]);
@@ -70,14 +77,16 @@ function showImpact(name) {
   get('source').href = url;
   get('note').textContent = 'The camera suggests a material category. This reference estimate depends on the actual product and covers the stated lifecycle stage.' + (Number(value)<0 ? ' A negative production-stage value can reflect stored biogenic carbon. Later stages can change the total.' : '');
   get('impact').hidden = false;
-  get('impact').scrollIntoView({block:'nearest'});
+  if (!document.body.classList.contains('scanning')) get('impact').scrollIntoView({block:'nearest'});
 }
+
+get('close-impact').onclick = () => { get('impact').hidden = true; };
 
 function resize() {
   if (!video.videoWidth || video.hidden) return;
-  const scale = Math.min(video.clientWidth/video.videoWidth, video.clientHeight/video.videoHeight);
-  const w = video.videoWidth*scale, h = video.videoHeight*scale;
-  Object.assign(overlay.style,{width:w+'px',height:h+'px',left:(video.clientWidth-w)/2+'px',top:(video.clientHeight-h)/2+'px'});
+  const width = video.clientWidth;
+  const height = video.clientHeight;
+  Object.assign(overlay.style, {width: width+'px', height: height+'px', left:'0', top:'0'});
 }
 new ResizeObserver(resize).observe(get('stage'));
 
@@ -87,6 +96,7 @@ function end(message) {
   stream = null;
   video.srcObject = null;
   video.hidden = true;
+  document.body.classList.remove('scanning');
   overlay.replaceChildren();
   get('placeholder').hidden = false;
   start.disabled = false;
@@ -119,9 +129,15 @@ async function scan(id, classify, RawImage) {
     frame.width = video.videoWidth;
     frame.height = video.videoHeight;
     frameContext.drawImage(video, 0, 0);
-    const side = Math.min(frame.width, frame.height) * .46;
+    const scale = Math.max(video.clientWidth / frame.width, video.clientHeight / frame.height);
+    if (!scale) continue;
+    const visibleWidth = video.clientWidth / scale;
+    const visibleHeight = video.clientHeight / scale;
+    const left = (frame.width - visibleWidth) / 2;
+    const top = (frame.height - visibleHeight) / 2;
+    const side = Math.min(visibleWidth, visibleHeight) * .42;
     for (const [index,[x,y]] of regions.entries()) {
-      context.drawImage(frame, x*frame.width-side/2, y*frame.height-side/2, side, side, 0, 0, 224, 224);
+      context.drawImage(frame, left + x*visibleWidth-side/2, top + y*visibleHeight-side/2, side, side, 0, 0, 224, 224);
       const rgba = context.getImageData(0,0,224,224);
       const result = await classify(new RawImage(rgba.data,224,224,4).rgb(),prompts,{hypothesis_template:'This is a photo of {}.'});
       if (id !== session) return;
@@ -164,6 +180,7 @@ start.onclick = async () => {
       if (id === session) end('Camera disconnected. Open it again to resume.');
     });
     video.srcObject = stream;
+    document.body.classList.add('scanning');
     video.hidden = false;
     get('placeholder').hidden = true;
     await video.play();
