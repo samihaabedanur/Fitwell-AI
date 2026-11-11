@@ -1,0 +1,1 @@
+Verified in ChatGPT workspace: pretrained model loaded on CPU; inference completed on a rendered portfolio page; original image, mask, overlay and JSON generated. This was an execution check, not a material accuracy evaluation. Python sources compiled successfully. Windows launcher and graphical interface have not been tested on your laptop.
