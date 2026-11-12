@@ -1,0 +1,210 @@
+photo_id,annotation_count,material_labels
+207,6,Fabric/cloth
+1189,6,Carpet/rug|Fabric/cloth|Foliage|Leather
+1476,7,Fabric/cloth|Glass|Paper/tissue|Wood
+1981,3,Fabric/cloth|Wood
+2545,7,Glass|Tile|Wood
+3400,7,Glass|Granite/marble|Painted|Wood
+4144,4,Leather|Metal|Painted|Tile
+4446,4,Wood
+4616,6,Ceramic|Granite/marble|Painted|Wood
+4899,6,Ceramic|Food|Painted|Tile
+5897,2,Painted
+5947,1,Metal
+6100,3,Painted|Wood
+6479,1,Wood
+6689,4,Tile
+7052,2,Glass|Tile
+7454,5,Glass|Mirror|Painted|Tile|Wood
+7538,2,Glass|Tile
+7557,4,Fabric/cloth|Painted|Tile
+7575,2,Ceramic|Painted
+7647,5,Glass|Painted|Tile
+8208,4,Fabric/cloth|Painted
+8715,4,Glass|Tile
+8806,6,Mirror|Painted|Tile
+9194,2,Brick|Painted
+9212,6,Brick|Concrete
+9331,3,Brick|Sky
+9426,3,Concrete
+9997,5,Carpet/rug|Fabric/cloth|Plastic - opaque
+10126,4,Painted|Wood
+10315,1,Wood
+10357,2,Painted|Tile
+10419,2,Brick|Stone
+12043,6,Carpet/rug|Plastic - opaque|Tile
+14822,2,Tile
+16184,3,Ceramic|Fabric/cloth|Paper/tissue
+16272,6,Ceramic|Glass|Painted|Tile
+17167,4,Ceramic|Mirror|Painted|Wood
+17562,5,Glass|Granite/marble|Mirror|Painted
+17902,6,Ceramic|Granite/marble|Metal|Tile
+18011,3,Metal|Tile
+18815,5,Glass|Granite/marble|Painted|Wood
+18911,2,Painted|Tile
+18990,8,Carpet/rug|Ceramic|Mirror|Painted|Plastic - opaque|Wood
+19092,3,Ceramic|Metal|Tile
+19531,3,Painted|Wood
+19710,6,Metal|Painted|Plastic - opaque|Tile
+20373,6,Carpet/rug|Glass|Painted|Plastic - opaque|Tile
+21706,4,Glass|Metal|Mirror|Plastic - opaque
+22786,6,Carpet/rug|Painted|Wood
+23159,7,Painted|Wood
+23750,3,Painted|Tile
+24436,3,Concrete|Granite/marble|Tile
+24572,5,Painted|Tile|Wood
+24685,5,Concrete
+24785,6,Brick|Metal|Tile
+25296,4,Brick|Concrete|Metal
+25738,1,Metal
+33200,4,Leather|Tile|Wood
+33827,6,Carpet/rug|Glass|Tile|Wood
+35375,4,Glass|Leather|Painted|Wood
+41464,2,Ceramic|Wax
+41559,3,Glass|Painted
+51010,5,Ceramic|Metal|Tile|Wood
+56108,4,Carpet/rug|Wood
+56959,5,Fabric/cloth|Painted|Paper/tissue
+57719,5,Carpet/rug|Ceramic|Painted|Plastic - opaque
+57790,4,Glass|Wood
+58765,1,Fabric/cloth
+59904,2,Fabric/cloth
+60052,3,Ceramic|Painted|Wood
+60244,1,Fabric/cloth
+60617,5,Stone|Wood
+60643,6,Glass|Metal|Wood
+61128,3,Fabric/cloth|Plastic - clear|Plastic - opaque
+61160,2,Metal|Wood
+61362,6,Granite/marble|Metal|Painted
+62829,6,Fabric/cloth|Glass|Wood
+63961,5,Fabric/cloth|Food|Skin
+63994,5,Carpet/rug|Painted
+64005,6,Glass|Painted|Tile|Wood
+64432,4,Metal|Painted
+64613,5,Carpet/rug|Metal|Painted|Wood
+64760,5,Ceramic|Fabric/cloth|Wood
+65298,5,Fabric/cloth|Glass|Painted|Wood
+66062,4,Food|Metal|Wood
+66906,4,Tile|Wood
+67188,6,Glass|Painted|Paper/tissue|Wood
+67440,7,Glass|Painted|Tile
+67598,4,Carpet/rug|Glass|Wood
+67631,5,Plastic - opaque|Tile
+68091,1,Fabric/cloth
+68323,6,Glass|Granite/marble|Painted|Wood
+69918,3,Glass|Painted|Wood
+70369,5,Metal|Plastic - opaque
+70799,4,Metal|Wood
+70859,2,Metal|Painted
+70866,4,Glass|Wood
+70990,6,Fabric/cloth|Metal|Painted|Tile|Wood
+71518,2,Fabric/cloth|Wood
+71710,5,Fabric/cloth|Painted|Plastic - opaque
+71728,5,Fabric/cloth|Painted|Tile|Wood
+71764,5,Fabric/cloth|Glass|Painted
+72355,4,Ceramic|Plastic - opaque
+73320,3,Fabric/cloth|Paper/tissue
+73809,6,Fabric/cloth|Food|Hair|Skin
+76451,1,Fabric/cloth
+77805,6,Granite/marble|Painted|Tile|Wood
+78225,4,Painted|Wood
+78256,2,Painted|Wood
+78468,5,Ceramic|Metal|Plastic - opaque
+80894,3,Painted|Plastic - opaque|Wood
+81151,3,Painted|Wood
+81187,4,Metal|Painted|Tile|Wood
+81502,2,Ceramic|Wood
+81541,3,Paper/tissue|Tile|Wood
+82895,3,Ceramic|Metal|Plastic - opaque
+84046,3,Metal|Plastic - opaque
+85908,4,Fabric/cloth|Fur|Laminate|Skin
+86172,3,Painted|Plastic - clear|Tile
+86359,4,Fabric/cloth|Laminate|Tile|Wood
+86623,6,Fabric/cloth|Granite/marble|Metal|Wood
+87465,5,Glass|Metal|Painted|Plastic - opaque|Wood
+87549,5,Food|Metal|Wood
+87973,6,Painted|Tile
+88000,6,Fabric/cloth|Food|Painted|Tile|Wood
+89119,5,Fabric/cloth|Painted
+89237,4,Glass|Painted|Wood
+89354,2,Carpet/rug|Painted
+89648,6,Fabric/cloth|Glass|Metal|Wax|Wood
+90320,6,Ceramic|Glass|Metal|Painted
+90455,6,Ceramic|Glass|Metal|Paper/tissue
+90515,6,Fabric/cloth|Painted
+90809,5,Wood
+91007,5,Fabric/cloth|Wood
+91140,6,Ceramic|Glass
+92690,6,Ceramic|Glass|Painted|Wood
+97003,5,Fabric/cloth|Glass|Wood
+97177,1,Fabric/cloth
+97357,4,Fabric/cloth|Painted|Wood
+97770,6,Fabric/cloth|Glass|Painted
+98301,8,Glass|Painted|Wood
+99628,5,Brick|Carpet/rug|Fabric/cloth|Mirror|Wicker
+100008,3,Painted|Wood
+100947,6,Fabric/cloth|Fur|Glass
+102090,5,Wood
+102265,6,Carpet/rug|Painted|Wood
+103277,4,Concrete|Fabric/cloth|Painted|Wallpaper
+103563,6,Carpet/rug|Fabric/cloth|Painted|Wood
+103573,6,Painted|Stone|Tile|Wood
+104104,6,Fabric/cloth|Painted|Wood
+106322,5,Fabric/cloth|Wood
+106344,6,Fabric/cloth|Glass|Wood
+106544,2,Painted
+106823,3,Glass|Painted|Tile
+106966,6,Glass|Tile|Wood
+107370,6,Carpet/rug|Glass|Painted
+107876,3,Painted|Tile|Wood
+108508,2,Painted|Wood
+108533,6,Carpet/rug|Painted|Wood
+108586,3,Concrete|Stone|Tile
+108623,6,Glass|Granite/marble|Metal|Painted|Tile
+108763,4,Granite/marble|Painted
+108807,4,Carpet/rug|Metal|Painted|Tile
+109255,2,Painted|Tile
+109273,6,Foliage|Painted|Tile
+109285,5,Concrete|Fabric/cloth|Painted|Plastic - opaque
+109434,4,Glass|Wood
+109480,6,Painted|Tile
+109607,3,Fabric/cloth|Metal|Painted
+109737,4,Glass|Painted|Wood
+109941,6,Painted|Tile
+110113,2,Glass
+110146,4,Foliage|Painted|Stone
+110252,1,Glass
+110265,4,Granite/marble|Painted|Tile
+110354,4,Carpet/rug|Fabric/cloth|Painted
+110398,5,Fabric/cloth|Plastic - opaque|Tile|Wood
+110928,3,Painted|Tile
+111274,6,Fabric/cloth|Glass|Hair|Painted|Tile
+111871,3,Glass|Metal
+112135,7,Ceramic|Granite/marble|Painted|Tile
+112302,5,Granite/marble|Metal|Wood
+112464,4,Fabric/cloth|Food|Metal|Plastic - opaque
+113896,5,Metal|Painted
+114268,6,Metal
+114305,6,Fabric/cloth|Glass|Metal|Tile
+114391,6,Glass|Hair|Metal|Plastic - clear
+114741,5,Painted|Tile
+114752,6,Metal|Painted|Tile
+115501,5,Ceramic|Fabric/cloth|Metal
+115866,6,Fabric/cloth|Glass|Plastic - clear|Plastic - opaque|Wood
+116421,5,Painted|Plastic - clear|Plastic - opaque
+116531,6,Metal|Wood
+116570,6,Painted|Tile
+116721,6,Glass|Metal|Painted|Wood
+116822,3,Metal
+116841,6,Glass|Metal|Painted|Tile
+116958,6,Fabric/cloth|Food|Hair
+117014,6,Fabric/cloth|Hair|Skin
+117044,4,Glass|Painted|Wood
+117063,5,Glass|Painted|Tile|Wood
+117113,6,Food|Metal|Painted|Plastic - opaque|Tile|Wood
+117199,7,Cardboard|Fabric/cloth|Food|Glass|Metal|Plastic - clear|Rubber/latex
+117237,5,Fabric/cloth|Metal|Plastic - clear|Skin
+117359,4,Metal|Plastic - clear|Plastic - opaque|Rubber/latex
+117362,6,Fabric/cloth|Food|Metal
+117410,5,Glass|Plastic - clear
+118413,6,Food|Glass|Metal|Painted|Plastic - opaque|Wood

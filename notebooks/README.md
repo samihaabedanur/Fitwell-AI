@@ -9,7 +9,7 @@ The notebooks document exploratory analysis of the available Fitwell AI dataset 
 | [01 — DTD](01_dtd_analysis.ipynb) | Image-index consistency and texture-category balance |
 | [02 — MatFuse](02_matfuse_analysis.ipynb) | Sample metadata, file counts and storage distribution |
 | [03 — OpenSurfaces](03_opensurfaces_analysis.ipynb) | Archive inventory, material vocabulary and licence definitions |
-| [04 — ÖKOBAUDAT](04_oekobaudat_analysis.ipynb) | Input-schema preparation and source-data availability checks |
+| [04 — ÖKOBAUDAT](04_oekobaudat_analysis.ipynb) | Source checks, cleaning, tables, graphs and environmental-impact review |
 | [05 — DMS](05_dms_analysis.ipynb) | Material taxonomy, model-channel mapping and archive statistics |
 | [06 — EcoHome Studio](06_ecohome_studio_analysis.ipynb) | Application configuration tables and indexed reference resources |
 
