@@ -48,6 +48,25 @@ The interface is served through GitHub Pages from the `main` branch and `/docs` 
 
 The current recogniser is `Xenova/clip-vit-base-patch32`, loaded through Transformers.js. Model and runtime assets are retrieved from Hugging Face and jsDelivr. Camera frames are processed in the browser by the current implementation.
 
+## Optional AI interior redesign
+
+Fitwell includes an optional Replicate adapter in `fitwell_interior_design.py`. It sends a room image and design prompt to the MIT-licensed `adirik/interior-design` model used by the FMXExpress AI Interior Design project and saves the generated image locally. It does not change the material-recognition pipeline.
+
+Install the dependencies and set your Replicate token:
+
+```powershell
+.venv\Scripts\python.exe -m pip install -r camera_requirements.txt
+$env:REPLICATE_API_TOKEN = "your_token_here"
+```
+
+Generate a redesign:
+
+```powershell
+.venv\Scripts\python.exe fitwell_interior_design.py room.jpg "modern Scandinavian living room with light wood and green plants" --output outputs\redesign.png
+```
+
+Never commit the API token. The integration is optional and requires a Replicate account; the remote model may have its own usage costs and terms.
+
 ## Data rights
 
 The repository licence applies to project code where applicable. External datasets, photographs, model weights and third-party code remain subject to their respective licences and attribution requirements. Dataset-specific terms are recorded in [datasets/](datasets/).
