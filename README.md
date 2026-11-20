@@ -67,6 +67,10 @@ Generate a redesign:
 
 Never commit the API token. The integration is optional and requires a Replicate account; the remote model may have its own usage costs and terms.
 
+## Hosted deployment
+
+`backend_app.py`, `backend_requirements.txt`, `.env.example`, and `render.yaml` provide a secured Render setup. The redesign endpoint requires the generated `FITWELL_API_TOKEN` as an `X-Fitwell-Token` header and reads provider keys only from Render environment variables.
+
 ## Data rights
 
 The repository licence applies to project code where applicable. External datasets, photographs, model weights and third-party code remain subject to their respective licences and attribution requirements. Dataset-specific terms are recorded in [datasets/](datasets/).

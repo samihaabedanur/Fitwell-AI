@@ -1,0 +1,22 @@
+services:
+  - type: web
+    name: fitwell-api
+    runtime: python
+    buildCommand: pip install -r backend_requirements.txt
+    startCommand: gunicorn backend_app:app
+    envVars:
+      - key: FITWELL_API_TOKEN
+        generateValue: true
+      - key: REPLICATE_API_TOKEN
+        sync: false
+      - key: MELTFLEX_API_KEY
+        sync: false
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: FITWELL_ALLOWED_ORIGINS
+        sync: false
+  - type: web
+    name: fitwell-site
+    runtime: static
+    buildCommand: ""
+    staticPublishPath: ./docs
