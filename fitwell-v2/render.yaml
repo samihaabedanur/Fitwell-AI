@@ -1,0 +1,9 @@
+services:
+  - type: web
+    name: fitwell-material-finder
+    runtime: python
+    buildCommand: pip install -r requirements.txt -r requirements-model.txt
+    startCommand: gunicorn fitwell_app:app --workers 1 --threads 4 --timeout 180
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.9

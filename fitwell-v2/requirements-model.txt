@@ -1,0 +1,4 @@
+# add the trained classifier to the web app (CPU build of PyTorch)
+--extra-index-url https://download.pytorch.org/whl/cpu
+torch
+torchvision

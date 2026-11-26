@@ -1,0 +1,236 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>FITWELL · Material Finder (standalone)</title>
+<style>
+:root{--bg:#f6f5f2;--card:#fff;--ink:#1d1d1b;--mute:#6b6a66;--line:#e3e1dc;--acc:#e8631a}
+@media(prefers-color-scheme:dark){:root{--bg:#161615;--card:#212120;--ink:#f1efea;--mute:#a09e98;--line:#34332f}}
+*{box-sizing:border-box}body{margin:0;font:15px/1.5 system-ui,sans-serif;background:var(--bg);color:var(--ink)}
+header{padding:16px 24px;border-bottom:1px solid var(--line);display:flex;gap:12px;align-items:baseline;flex-wrap:wrap}
+header b{font-size:18px}header span{color:var(--mute)}
+main{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:20px;padding:20px 24px;max-width:1400px;margin:auto}
+@media(max-width:900px){main{grid-template-columns:1fr}}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px;margin-bottom:16px}
+h3{margin:0 0 10px;font-size:13px;text-transform:uppercase;letter-spacing:.06em;color:var(--mute)}
+#stage{position:relative;display:inline-block;max-width:100%;cursor:crosshair}
+#stage img,#stage canvas{display:block;max-width:100%;height:auto;border-radius:8px}
+#stage canvas{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+.drop{border:2px dashed var(--line);border-radius:10px;padding:36px;text-align:center;color:var(--mute);cursor:pointer}
+button,select,input{font:inherit;color:inherit}
+button{background:var(--acc);color:#fff;border:0;border-radius:8px;padding:7px 14px;cursor:pointer}
+button.ghost{background:transparent;color:var(--ink);border:1px solid var(--line)}
+.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+input[type=text],select{background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:6px 10px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:10px}
+.sw{border:1px solid var(--line);border-radius:10px;overflow:hidden;cursor:pointer;font-size:12px;background:var(--card)}
+.sw:hover{border-color:var(--acc)}.sw .chip{aspect-ratio:1.6;background:var(--line)}
+.sw div.t{padding:6px 8px}.mut{color:var(--mute)}
+.pill{display:inline-block;padding:2px 10px;border-radius:99px;background:var(--acc);color:#fff;font-size:12px}
+.bar{height:8px;border-radius:4px;background:var(--line);overflow:hidden}.bar i{display:block;height:100%;background:var(--acc)}
+table{width:100%;border-collapse:collapse}td{padding:5px 0;border-bottom:1px solid var(--line);vertical-align:top}td:first-child{color:var(--mute);width:42%}
+#three{width:100%;height:340px;border-radius:8px;background:#222;touch-action:none}
+</style></head><body>
+<header><b>FITWELL</b><span>click any surface in your photo to identify it, source it, and preview it in 3D · runs entirely in your browser</span></header>
+<main>
+<section>
+  <div class="card"><h3>1 · Photo</h3>
+    <div id="dz" class="drop">Drop a photo here, or click to choose<input id="file" type="file" accept="image/*" hidden></div>
+    <div id="stage" hidden><img id="photo" alt="uploaded"><canvas id="ov"></canvas></div>
+    <div class="row" style="margin-top:10px" id="ctl" hidden>
+      <label class="mut">Selection tolerance <input id="tol" type="range" min="4" max="40" value="14"></label>
+      <button class="ghost" id="newp">New photo</button><span class="mut" id="busy"></span></div>
+  </div>
+  <div class="card"><h3>Browse catalogue</h3>
+    <div class="row"><input id="q" type="text" placeholder="Search name or vendor">
+      <select id="cat"><option value="">All categories</option></select>
+      <input id="mp" type="text" size="8" placeholder="Max €/m²"><input id="mg" type="text" size="8" placeholder="Max kgCO₂e">
+      <button id="go" class="ghost">Search</button></div>
+    <div class="row" style="margin-top:8px"><label class="mut">Use your own catalogue: <input id="csv" type="file" accept=".csv"></label></div>
+    <p class="mut" id="tot"></p><div class="grid" id="browse"></div></div>
+</section>
+<section>
+  <div class="card"><h3>2 · Material</h3><div id="info" class="mut">Nothing selected yet.</div></div>
+  <div class="card"><h3>3 · 3D materiality</h3>
+    <div id="three"></div>
+    <div class="row" style="margin-top:10px">
+      <select id="shape"><option>sphere</option><option>cube</option><option>wall</option></select>
+      <label class="mut">Tiling <input id="tile" type="range" min="1" max="8" step=".5" value="2"></label>
+      <label class="mut">Relief <input id="disp" type="range" min="0" max=".15" step=".005" value=".03"></label>
+      <label class="mut">Light <input id="light" type="range" min="0" max="6.28" step=".05" value="1"></label></div></div>
+  <div class="card"><h3>Vendors &amp; similar colours</h3><div class="grid" id="sims"><span class="mut">Select an area first.</span></div></div>
+</section></main>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+const $=id=>document.getElementById(id);
+const SITE=[41.3995,2.2];              // change to your project site (lat, lon)
+const CATS=['wood','brick','concrete','stone','metal','glass','ceramic','plaster','fabric','plastic','insulation'];
+const COL={wood:'#a9794a',brick:'#a8503a',concrete:'#8d8d8a',stone:'#b8b2a6',metal:'#a5a9ad',glass:'#a8c5cc',ceramic:'#d9d4c8',plaster:'#e6e1d6',fabric:'#8a7f78',plastic:'#8f9aa5',insulation:'#d8c38a'};
+const TAX={wood:['wood','timber','plywood','bamboo','parquet'],brick:['brick'],concrete:['concrete','cement','asphalt'],stone:['stone','granite','marble','rock','slate','sandstone'],metal:['metal','steel','aluminium','aluminum','iron','copper','brass'],glass:['glass','mirror','window'],ceramic:['tile','ceramic','porcelain'],plaster:['plaster','paint','wall','stucco','gypsum'],fabric:['fabric','carpet','cloth','textile','wool','leather'],plastic:['plastic','rubber','vinyl','laminate'],insulation:['insulation','foam','cork']};
+const unify=r=>{r=String(r||'').toLowerCase();for(const c in TAX)if(TAX[c].some(k=>r.includes(k)))return c;return'other'};
+const money=v=>v==null?'–':'€'+Math.round(v);
+const km=(a,b)=>{if(a==null||b==null)return null;const r=Math.PI/180,p=(a-SITE[0])*r,l=(b-SITE[1])*r,h=Math.sin(p/2)**2+Math.cos(SITE[0]*r)*Math.cos(a*r)*Math.sin(l/2)**2;return Math.round(12742*Math.asin(Math.sqrt(h)))};
+// demo rows so the page works before you load your own materials.csv
+let CAT=[
+['Oak parquet','wood','Demo Timber',62,-9.1,'Girona','ES',41.98,2.82,'#a9794a'],['Smoked oak plank','wood','Demo Timber',74,-7.4,'Girona','ES',41.98,2.82,'#6b4a2f'],
+['Facing brick','brick','Demo Ceramics',48,14,'Valencia','ES',39.47,-.38,'#a8503a'],['Pale clay brick','brick','Demo Ceramics',52,13,'Valencia','ES',39.47,-.38,'#c49a7c'],
+['Board-marked concrete','concrete','Demo Cement',55,38,'Lyon','FR',45.76,4.84,'#8d8d8a'],['Polished concrete','concrete','Demo Cement',70,41,'Lyon','FR',45.76,4.84,'#a2a29f'],
+['Travertine slab','stone','Demo Stone',120,22,'Tivoli','IT',41.96,12.8,'#cdbfa5'],['Slate tile','stone','Demo Stone',95,19,'Ourense','ES',42.34,-7.86,'#4d5257'],
+['Brushed steel sheet','metal','Demo Metals',140,95,'Bilbao','ES',43.26,-2.93,'#a5a9ad'],['Float glass 8mm','glass','Demo Glass',85,30,'Barcelona','ES',41.39,2.17,'#a8c5cc'],
+['Glazed ceramic tile','ceramic','Demo Ceramics',42,16,'Castelló','ES',39.99,-.05,'#d9d4c8'],['Lime plaster','plaster','Demo Lime',28,6,'Perpignan','FR',42.7,2.89,'#e6e1d6'],
+['Wool carpet tile','fabric','Demo Textiles',58,24,'Terrassa','ES',41.56,2.01,'#8a7f78'],['Cork insulation board','insulation','Demo Cork',46,-12,'Évora','PT',38.57,-7.91,'#c9a46a']
+].map((r,i)=>({id:i,name:r[0],category:r[1],vendor:r[2],price:r[3],gwp:r[4],city:r[5],country:r[6],lat:r[7],lon:r[8],color:r[9],distance_km:km(r[7],r[8]),demo:1}));
+// ---------- catalogue ----------
+function parseCSV(t){const rows=[];let r=[],c='',q=false;for(let i=0;i<t.length;i++){const ch=t[i];
+  if(q){if(ch=='"'&&t[i+1]=='"'){c+='"';i++}else if(ch=='"')q=false;else c+=ch}
+  else if(ch=='"')q=true;else if(ch==','){r.push(c);c=''}else if(ch=='\n'||ch=='\r'){if(ch=='\r'&&t[i+1]=='\n')i++;r.push(c);rows.push(r);r=[];c=''}else c+=ch}
+  if(c||r.length){r.push(c);rows.push(r)}return rows.filter(x=>x.some(v=>v.trim()))}
+$('csv').onchange=async e=>{const f=e.target.files[0];if(!f)return;const rows=parseCSV(await f.text()),h=rows[0].map(x=>x.trim());
+  const n=(r,k)=>{const i=h.indexOf(k);const v=i<0?'':r[i].trim();return v===''?null:v},num=(r,k)=>{const v=n(r,k);return v==null||isNaN(+v)?null:+v};
+  CAT=rows.slice(1).map((r,i)=>{const o={id:i,name:n(r,'name'),vendor:n(r,'vendor'),vendor_url:n(r,'vendor_url'),price:num(r,'price_eur_m2'),gwp:num(r,'gwp_kgco2e_m2'),country:n(r,'country'),city:n(r,'city'),lat:num(r,'lat'),lon:num(r,'lon'),lead:num(r,'lead_time_days'),specs:n(r,'specs'),color:n(r,'color')};
+    o.category=unify(n(r,'category')||o.name);o.distance_km=km(o.lat,o.lon);return o});
+  $('cat').length=1;browse();if(curCat)apply(curCat)};
+function props(m){const g=m.gwp,w=g==null?0:Math.max(4,Math.min(100,(g+20)*1.6));
+  return `<table><tr><td>Vendor</td><td>${m.vendor?(m.vendor_url?`<a href="${m.vendor_url}" target="_blank" rel="noopener">${m.vendor}</a>`:m.vendor):'–'}</td></tr>
+  <tr><td>Price</td><td>${money(m.price)} / m²</td></tr><tr><td>Origin</td><td>${[m.city,m.country].filter(Boolean).join(', ')||'–'}${m.distance_km!=null?` · ${m.distance_km} km from site`:''}</td></tr>
+  <tr><td>Lead time</td><td>${m.lead!=null?m.lead+' days':'–'}</td></tr><tr><td>GWP (kgCO₂e/m²)</td><td>${g??'–'}<div class="bar"><i style="width:${w}%"></i></div></td></tr>
+  <tr><td>Specs</td><td>${m.specs||'–'}</td></tr></table>`}
+const chip=m=>`<div class="chip" style="background:${m.color||COL[m.category]||'#999'}"></div>`;
+const card=(m,i)=>`<div class="sw" data-i="${i}">${chip(m)}<div class="t"><b>${m.name||'?'}</b><br><span class="mut">${m.vendor||''} · ${money(m.price)}</span></div></div>`;
+function browse(){const q=$('q').value.toLowerCase(),c=$('cat').value,mp=parseFloat($('mp').value),mg=parseFloat($('mg').value);
+  [...new Set(CAT.map(m=>m.category))].sort().forEach(k=>{if(![...$('cat').options].some(o=>o.value==k))$('cat').add(new Option(k,k))});
+  const L=CAT.filter(m=>(!q||(m.name||'').toLowerCase().includes(q)||(m.vendor||'').toLowerCase().includes(q))&&(!c||m.category==c)&&(isNaN(mp)||(m.price!=null&&m.price<=mp))&&(isNaN(mg)||(m.gwp!=null&&m.gwp<=mg))).slice(0,60);
+  $('tot').textContent=L.length+' materials'+(CAT[0]&&CAT[0].demo?' (demo rows — load your materials.csv above)':'');
+  $('browse').innerHTML=L.map(card).join('');
+  document.querySelectorAll('#browse .sw').forEach(el=>el.onclick=()=>choose(L[el.dataset.i]))}
+$('go').onclick=browse;
+function choose(m){$('info').innerHTML=`<div class="row"><span class="pill">${m.category}</span><b>${m.name}</b></div>`+props(m);setPBR(pbr(procedural(m),m.category),m.category)}
+// ---------- image handling ----------
+let W=0,H=0,cv=null,PIX=null,LAB=null,curCat=null,curMean=null,curCrop=null;
+function blur(a,w,h,r){r=Math.max(1,r|0);const t=new Float32Array(a.length),o=new Float32Array(a.length),n=2*r+1;
+  for(let y=0;y<h;y++){let s=0;const b=y*w;for(let k=-r;k<=r;k++)s+=a[b+Math.min(w-1,Math.max(0,k))];
+    for(let x=0;x<w;x++){t[b+x]=s/n;s+=a[b+Math.min(w-1,x+r+1)]-a[b+Math.max(0,x-r)]}}
+  for(let x=0;x<w;x++){let s=0;for(let k=-r;k<=r;k++)s+=t[Math.min(h-1,Math.max(0,k))*w+x];
+    for(let y=0;y<h;y++){o[y*w+x]=s/n;s+=t[Math.min(h-1,y+r+1)*w+x]-t[Math.max(0,y-r)*w+x]}}return o}
+function lab(r,g,b){const f=c=>{c/=255;return c>.04045?Math.pow((c+.055)/1.055,2.4):c/12.92},R=f(r),G=f(g),B=f(b),
+  q=t=>t>.008856?Math.cbrt(t):7.787*t+16/116,x=q((.4124*R+.3576*G+.1805*B)/.95047),y=q(.2126*R+.7152*G+.0722*B),z=q((.0193*R+.1192*G+.9505*B)/1.08883);
+  return[116*y-16,500*(x-y),200*(y-z)]}
+$('dz').onclick=()=>$('file').click();$('newp').onclick=()=>$('file').click();
+$('dz').ondragover=e=>e.preventDefault();$('dz').ondrop=e=>{e.preventDefault();load(e.dataTransfer.files[0])};
+$('file').onchange=e=>load(e.target.files[0]);$('file').hidden=true;
+function load(f){if(!f)return;const url=URL.createObjectURL(f),im=new Image();$('busy').textContent='preparing…';
+  im.onload=()=>{const s=Math.min(1,1024/Math.max(im.width,im.height));W=Math.round(im.width*s);H=Math.round(im.height*s);
+    cv=document.createElement('canvas');cv.width=W;cv.height=H;const x=cv.getContext('2d',{willReadFrequently:true});x.drawImage(im,0,0,W,H);
+    PIX=x.getImageData(0,0,W,H).data;const N=W*H,L=new Float32Array(N),A=new Float32Array(N),B=new Float32Array(N);
+    for(let i=0;i<N;i++){const l=lab(PIX[4*i],PIX[4*i+1],PIX[4*i+2]);L[i]=l[0];A[i]=l[1];B[i]=l[2]}
+    LAB=[blur(L,W,H,2),blur(A,W,H,2),blur(B,W,H,2)];
+    $('photo').src=url;$('ov').width=W;$('ov').height=H;$('ov').getContext('2d').clearRect(0,0,W,H);
+    $('dz').hidden=true;$('stage').hidden=false;$('ctl').hidden=false;$('busy').textContent='click a surface'};
+  im.src=url}
+// ---------- click -> region (magic wand in Lab colour space) ----------
+function grow(x,y,tol){const N=W*H,m=new Uint8Array(N);let sl=0,sa=0,sb=0,c=0;
+  for(let dy=-2;dy<=2;dy++)for(let dx=-2;dx<=2;dx++){const xx=x+dx,yy=y+dy;if(xx<0||yy<0||xx>=W||yy>=H)continue;const i=yy*W+xx;sl+=LAB[0][i];sa+=LAB[1][i];sb+=LAB[2][i];c++}
+  sl/=c;sa/=c;sb/=c;const ok=i=>Math.hypot(LAB[0][i]-sl,LAB[1][i]-sa,LAB[2][i]-sb)<tol,st=[y*W+x];m[st[0]]=1;
+  const tryp=i=>{if(!m[i]){m[i]=ok(i)?1:2;if(m[i]==1)st.push(i)}};
+  while(st.length){const i=st.pop(),px=i%W;if(px>0)tryp(i-1);if(px<W-1)tryp(i+1);if(i>=W)tryp(i-W);if(i<N-W)tryp(i+W)}
+  for(let i=0;i<N;i++)if(m[i]==2)m[i]=0;return m}
+function tidy(m,x,y){const N=W*H,o=new Uint8Array(N),st=[],push=i=>{if(m[i]!==1&&!o[i]){o[i]=1;st.push(i)}};
+  for(let i=0;i<W;i++){push(i);push((H-1)*W+i)}for(let j=0;j<H;j++){push(j*W);push(j*W+W-1)}
+  while(st.length){const i=st.pop(),px=i%W;if(px>0)push(i-1);if(px<W-1)push(i+1);if(i>=W)push(i-W);if(i<N-W)push(i+W)}   // fill holes
+  const f=new Float32Array(N);for(let i=0;i<N;i++)f[i]=(m[i]===1||!o[i])?1:0;
+  const s=blur(f,W,H,3),out=new Uint8Array(N);for(let i=0;i<N;i++)out[i]=s[i]>.5?1:0;                                   // smooth outline, drop specks
+  const k=y*W+x;if(!out[k])return m;const r=new Uint8Array(N);r[k]=1;st.push(k);
+  while(st.length){const i=st.pop(),px=i%W,t=j=>{if(out[j]&&!r[j]){r[j]=1;st.push(j)}};if(px>0)t(i-1);if(px<W-1)t(i+1);if(i>=W)t(i-W);if(i<N-W)t(i+W)}
+  return r}
+function drawMask(m){const c=$('ov'),x=c.getContext('2d'),d=x.createImageData(W,H),e=(i)=>m[i]===1;
+  for(let yy=0;yy<H;yy++)for(let xx=0;xx<W;xx++){const i=yy*W+xx,p=4*i;
+    if(!m[i]){d.data[p+3]=115;continue}
+    if(xx<2||yy<2||xx>=W-2||yy>=H-2||!m[i-2]||!m[i+2]||!m[i-2*W]||!m[i+2*W]){d.data[p]=d.data[p+1]=d.data[p+2]=d.data[p+3]=255}}
+  x.putImageData(d,0,0)}
+// largest square inside the region = pure material texture
+function inner(m){const N=W*H,d=new Float32Array(N);
+  for(let y=0;y<H;y++)for(let x=0;x<W;x++){const i=y*W+x;d[i]=m[i]?((x==0||y==0||x==W-1||y==H-1)?1:1e5):0}
+  for(let y=0;y<H;y++)for(let x=0;x<W;x++){const i=y*W+x;if(!d[i])continue;let v=d[i];if(x>0)v=Math.min(v,d[i-1]+1);if(y>0){v=Math.min(v,d[i-W]+1);if(x>0)v=Math.min(v,d[i-W-1]+1.414);if(x<W-1)v=Math.min(v,d[i-W+1]+1.414)}d[i]=v}
+  for(let y=H-1;y>=0;y--)for(let x=W-1;x>=0;x--){const i=y*W+x;if(!d[i])continue;let v=d[i];if(x<W-1)v=Math.min(v,d[i+1]+1);if(y<H-1){v=Math.min(v,d[i+W]+1);if(x<W-1)v=Math.min(v,d[i+W+1]+1.414);if(x>0)v=Math.min(v,d[i+W-1]+1.414)}d[i]=v}
+  let bi=0,bv=0;for(let i=0;i<N;i++)if(d[i]>bv){bv=d[i];bi=i}
+  let r=Math.max(12,Math.floor(bv/1.41));r=Math.min(r,W>>1,H>>1);const cx=bi%W,cy=(bi/W)|0,
+  sx=Math.max(0,Math.min(W-2*r,cx-r)),sy=Math.max(0,Math.min(H-2*r,cy-r)),c=document.createElement('canvas');c.width=c.height=2*r;
+  c.getContext('2d').drawImage(cv,sx,sy,2*r,2*r,0,0,2*r,2*r);return c}
+// ---------- material estimate from colour + texture (no AI model, no downloads) ----------
+function feats(c){const S=96,k=document.createElement('canvas');k.width=k.height=S;const x=k.getContext('2d',{willReadFrequently:true});x.drawImage(c,0,0,S,S);
+  const d=x.getImageData(0,0,S,S).data,N=S*S,g=new Float32Array(N);let R=0,G=0,B=0,mu=0;
+  for(let i=0;i<N;i++){R+=d[4*i];G+=d[4*i+1];B+=d[4*i+2];g[i]=.299*d[4*i]+.587*d[4*i+1]+.114*d[4*i+2];mu+=g[i]}
+  R/=N;G/=N;B/=N;mu/=N;const mx=Math.max(R,G,B),mn=Math.min(R,G,B),dl=mx-mn;let h=0;
+  if(dl>1e-6){h=mx==R?((G-B)/dl)%6:mx==G?(B-R)/dl+2:(R-G)/dl+4;h*=60;if(h<0)h+=360}
+  let sd=0,sx=0,sy=0;for(let i=0;i<N;i++)sd+=(g[i]-mu)**2;sd=Math.sqrt(sd/N);
+  for(let y=1;y<S-1;y++)for(let xx=1;xx<S-1;xx++){const i=y*S+xx;sx+=Math.abs(g[i+1]-g[i-1]);sy+=Math.abs(g[i+S]-g[i-S])}
+  return{h,hd:Math.min(h,360-h),s:mx?dl/mx:0,v:mx/255,sd,ed:(sx+sy)/(2*(S-2)**2),an:Math.abs(sx-sy)/(sx+sy+1e-6),rgb:[R,G,B]}}
+const gs=(x,m,s)=>Math.exp(-((x-m)/s)**2);
+function classify(f){const{h,hd,s,v,sd,ed,an}=f,sc={
+  wood:gs(h,28,14)*gs(s,.5,.25)*gs(v,.55,.25)*(.5+an)*gs(ed,8,6),
+  brick:gs(hd,10,12)*gs(s,.55,.2)*gs(v,.5,.2)*gs(sd,22,12),
+  concrete:gs(s,.07,.08)*gs(v,.5,.2)*gs(sd,14,9)*gs(ed,5,4),
+  stone:gs(s,.15,.12)*gs(v,.6,.2)*gs(sd,22,10)*gs(ed,7,5),
+  metal:gs(s,.06,.08)*gs(v,.6,.25)*gs(ed,2.5,2)*(.5+an),
+  glass:gs(h,205,35)*gs(s,.2,.18)*gs(ed,2,2),
+  ceramic:gs(s,.12,.12)*gs(v,.8,.15)*gs(ed,3,2.5)*gs(sd,10,7),
+  plaster:gs(s,.08,.1)*gs(v,.8,.15)*gs(sd,5,5)*gs(ed,1.5,1.5),
+  fabric:gs(ed,9,5)*gs(sd,18,10)*gs(s,.3,.3),
+  plastic:gs(s,.45,.35)*gs(ed,2,2)*gs(sd,6,6),
+  insulation:gs(h,48,12)*gs(s,.5,.2)*gs(ed,6,5)};
+  let tot=0;for(const k in sc){sc[k]+=1e-4;tot+=sc[k]}const best=Object.keys(sc).sort((a,b)=>sc[b]-sc[a])[0];return[best,sc[best]/tot]}
+// ---------- pick ----------
+$('stage').onclick=e=>{if(!LAB)return;const b=$('photo').getBoundingClientRect();
+  const x=Math.min(W-1,Math.max(0,Math.floor((e.clientX-b.left)/b.width*W))),y=Math.min(H-1,Math.max(0,Math.floor((e.clientY-b.top)/b.height*H)));
+  $('busy').textContent='analysing…';setTimeout(()=>{
+    const m=tidy(grow(x,y,+$('tol').value),x,y);drawMask(m);curCrop=inner(m);
+    let R=0,G=0,B=0,n=0;for(let i=0;i<W*H;i++)if(m[i]){R+=PIX[4*i];G+=PIX[4*i+1];B+=PIX[4*i+2];n++}curMean=[R/n,G/n,B/n];
+    const f=feats(curCrop),[cat,conf]=classify(f);window.lastInfo={conf,area:Math.round(1000*n/(W*H))/10};apply(cat);$('busy').textContent=''},20)};
+const hex2=h=>[1,3,5].map(i=>parseInt(h.substr(i,2),16));
+function apply(cat){curCat=cat;const I=window.lastInfo||{conf:0,area:0},low=I.conf<.45,
+  list=CAT.filter(m=>m.category==cat).map(m=>({m,d:m.color&&curMean?Math.hypot(...hex2(m.color).map((v,i)=>v-curMean[i])):1e3})).sort((a,b)=>a.d-b.d).slice(0,8).map(o=>o.m),top=list[0];
+  $('info').innerHTML=`<div class="row"><span class="pill">${cat}</span><b>${low?'possibly ':''}${cat}</b><span class="mut">estimate ${Math.round(I.conf*100)}% · region ${I.area}% of photo</span>
+    <select id="ovr">${[...CATS,'other'].map(c=>`<option${c==cat?' selected':''}>${c}</option>`).join('')}</select></div>
+    <p class="mut" style="margin-top:8px">Guessed from colour and texture in your browser (no AI model). Wrong? Pick the right material in the list.</p>`+
+    (top?`<p class="mut" style="margin:10px 0 4px">Closest catalogue match: <b style="color:var(--ink)">${top.name||'–'}</b></p>${props(top)}`:
+      `<p class="mut" style="margin-top:10px">No <b style="color:var(--ink)">${cat}</b> in the catalogue yet. Load a materials.csv to see vendors here. The 3D preview still uses your photo.</p>`);
+  $('ovr').onchange=e=>apply(e.target.value);
+  $('sims').innerHTML=list.length?list.map(card).join(''):'<span class="mut">No matching swatches in the catalogue.</span>';
+  document.querySelectorAll('#sims .sw').forEach(el=>el.onclick=()=>{const m=list[el.dataset.i];$('info').querySelector('table')&&($('info').querySelector('table').outerHTML=props(m));setPBR(pbr(procedural(m),m.category),m.category)});
+  setPBR(pbr(curCrop,cat),cat)}
+// ---------- PBR maps from a 2D image (cheap estimate) ----------
+function procedural(m){const c=document.createElement('canvas');c.width=c.height=256;const x=c.getContext('2d');x.fillStyle=m.color||COL[m.category]||'#999';x.fillRect(0,0,256,256);
+  for(let i=0;i<5000;i++){x.fillStyle=Math.random()<.5?'rgba(255,255,255,.07)':'rgba(0,0,0,.07)';x.fillRect(Math.random()*256,Math.random()*256,2+Math.random()*4,m.category=='wood'?40*Math.random():2+Math.random()*4)}
+  if(m.category=='brick'){x.fillStyle='#d8d2c6';for(let y=0;y<256;y+=32){x.fillRect(0,y,256,3);for(let k=((y/32)%2)*32;k<256;k+=64)x.fillRect(k,y,3,32)}}return c}
+function pbr(src,cat){const S=256,c=document.createElement('canvas');c.width=c.height=S;const cx=c.getContext('2d',{willReadFrequently:true});cx.drawImage(src,0,0,S,S);
+  const d=cx.getImageData(0,0,S,S).data,N=S*S,g=new Float32Array(N);for(let i=0;i<N;i++)g[i]=(.299*d[4*i]+.587*d[4*i+1]+.114*d[4*i+2])/255;
+  const flat=blur(g,S,S,S/8),fm=flat.reduce((a,b)=>a+b,0)/N,h0=new Float32Array(N);
+  for(let i=0;i<N;i++)h0[i]=Math.min(2,g[i]/(flat[i]+.001));let h=blur(h0,S,S,1),mn=1e9,mx=-1e9;for(let i=0;i<N;i++){mn=Math.min(mn,h[i]);mx=Math.max(mx,h[i])}
+  for(let i=0;i<N;i++)h[i]=(h[i]-mn)/(mx-mn+1e-6);const h2=h.map(v=>v*v),sd=blur(h2,S,S,4),sm=blur(h,S,S,4);
+  const mk=()=>{const k=document.createElement('canvas');k.width=k.height=S;return k},A=mk(),Nn=mk(),Ro=mk(),He=mk(),
+    ia=cx.createImageData(S,S),inn=cx.createImageData(S,S),ir=cx.createImageData(S,S),ih=cx.createImageData(S,S),cl=v=>Math.max(0,Math.min(255,v));
+  for(let y=0;y<S;y++)for(let x=0;x<S;x++){const i=y*S+x,p=4*i,xl=Math.max(0,x-1),xr=Math.min(S-1,x+1),yu=Math.max(0,y-1),yd=Math.min(S-1,y+1),
+    gx=h[y*S+xr]-h[y*S+xl],gy=h[yd*S+x]-h[yu*S+x];let nx=-gx*5,ny=-gy*5,nz=1;const nl=Math.hypot(nx,ny,nz);
+    for(let k=0;k<3;k++)ia.data[p+k]=cl(d[p+k]/(flat[i]+.001)*fm);ia.data[p+3]=255;
+    inn.data[p]=(nx/nl*.5+.5)*255;inn.data[p+1]=(ny/nl*.5+.5)*255;inn.data[p+2]=(nz/nl*.5+.5)*255;inn.data[p+3]=255;
+    let rv=Math.min(1,Math.max(.25,.95-3*Math.sqrt(Math.max(sd[i]-sm[i]*sm[i],0))*3));if(cat=='metal')rv=Math.min(.6,Math.max(.15,rv*.5));if(cat=='glass')rv=.05;
+    ir.data[p]=ir.data[p+1]=ir.data[p+2]=rv*255;ir.data[p+3]=255;ih.data[p]=ih.data[p+1]=ih.data[p+2]=h[i]*255;ih.data[p+3]=255}
+  A.getContext('2d').putImageData(ia,0,0);Nn.getContext('2d').putImageData(inn,0,0);Ro.getContext('2d').putImageData(ir,0,0);He.getContext('2d').putImageData(ih,0,0);
+  return{albedo:A,normal:Nn,roughness:Ro,height:He,metalness:cat=='metal'?1:0,opacity:cat=='glass'?.25:1}}
+// ---------- 3D viewer (drag to rotate) ----------
+const box=$('three'),scene=new THREE.Scene(),cam=new THREE.PerspectiveCamera(40,1,.1,50);cam.position.set(0,0,3.2);
+const ren=new THREE.WebGLRenderer({antialias:true});box.appendChild(ren.domElement);
+scene.add(new THREE.AmbientLight(0xffffff,.45));const sun=new THREE.DirectionalLight(0xffffff,1.3);scene.add(sun);
+let mesh,mat=new THREE.MeshStandardMaterial({color:0x888888});
+function size(){ren.setSize(box.clientWidth,box.clientHeight);cam.aspect=box.clientWidth/box.clientHeight;cam.updateProjectionMatrix()}
+function build(){if(mesh)scene.remove(mesh);const s=$('shape').value,
+  g=s=='sphere'?new THREE.SphereGeometry(1,192,192):s=='cube'?new THREE.BoxGeometry(1.6,1.6,1.6,96,96,96):new THREE.PlaneGeometry(2.4,1.6,192,128);
+  mesh=new THREE.Mesh(g,mat);scene.add(mesh)}
+function tex(c,srgb){const t=new THREE.CanvasTexture(c);t.wrapS=t.wrapT=THREE.MirroredRepeatWrapping;if(srgb)t.encoding=THREE.sRGBEncoding;return t}
+function setPBR(p){Object.assign(mat,{map:tex(p.albedo,1),normalMap:tex(p.normal),roughnessMap:tex(p.roughness),displacementMap:tex(p.height),color:new THREE.Color(0xffffff),metalness:p.metalness,roughness:1,transparent:p.opacity<1,opacity:p.opacity,needsUpdate:true});tiling()}
+function tiling(){const t=+$('tile').value;['map','normalMap','roughnessMap','displacementMap'].forEach(k=>mat[k]&&mat[k].repeat.set(t,t));mat.displacementScale=+$('disp').value}
+['tile','disp'].forEach(i=>$(i).oninput=tiling);$('shape').onchange=build;
+$('light').oninput=()=>sun.position.set(Math.cos($('light').value)*3,2,Math.sin($('light').value)*3);sun.position.set(2,2,2);
+let drag=null;ren.domElement.onpointerdown=e=>drag=[e.clientX,e.clientY];addEventListener('pointerup',()=>drag=null);
+addEventListener('pointermove',e=>{if(!drag||!mesh)return;mesh.rotation.y+=(e.clientX-drag[0])*.01;mesh.rotation.x+=(e.clientY-drag[1])*.01;drag=[e.clientX,e.clientY]});
+addEventListener('resize',size);size();build();browse();(function loop(){requestAnimationFrame(loop);ren.render(scene,cam)})();
+</script></body></html>

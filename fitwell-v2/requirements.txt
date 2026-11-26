@@ -1,0 +1,7 @@
+flask>=3.0
+gunicorn>=22.0
+numpy
+pandas
+pillow
+scipy
+scikit-image
