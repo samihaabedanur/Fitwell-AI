@@ -2,7 +2,6 @@ import "./globals.css";
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
 import Link from "next/link";
-import { PLANNER_URL } from "@/lib/config";
 
 export const metadata: Metadata = {
   title: "Fitwell · find every material",
@@ -19,7 +18,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
             <nav className="links">
               <Link href="/moodboard">Mood board</Link>
               <Link href="/material">Single material</Link>
-              <a href={PLANNER_URL} target="_blank" rel="noreferrer">2D to 3D planner</a>
+              <Link href="/planner">3D studio</Link>
             </nav>
           </div>
         </header>

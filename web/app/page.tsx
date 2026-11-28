@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { PLANNER_URL } from "@/lib/config";
 
 export default function Home() {
   return (
@@ -27,7 +26,7 @@ export default function Home() {
           <div className="label">Plan</div>
           <h2>2D to 3D planner</h2>
           <p>Turn a floor plan into a 3D home and change the material of each wall, floor and ceiling.</p>
-          <a className="btn light" href={PLANNER_URL} target="_blank" rel="noreferrer">Open the planner</a>
+          <Link className="btn light" href="/planner">Open the 3D studio</Link>
         </article>
         <article className="card">
           <div className="label">Coming next</div>
