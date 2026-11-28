@@ -1,0 +1,3 @@
+Furniture assets: Kenney Furniture Kit.
+License/documentation: https://kenney.nl/documentation/model-kitsLicense.txt
+The original package includes OBJ models, MTL materials, and preview images.
