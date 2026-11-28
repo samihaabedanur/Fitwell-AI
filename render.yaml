@@ -1,5 +1,16 @@
 services:
   - type: web
+    name: fitwell-web
+    runtime: node
+    rootDir: web
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    envVars:
+      - key: NEXT_PUBLIC_MODEL_SPACE
+        value: HetaKalyani/fitwell-model-server
+      - key: NEXT_PUBLIC_PLANNER_URL
+        value: https://samihaabedanur.github.io/Fitwell-AI/docs/editor.html
+  - type: web
     name: fitwell-api
     runtime: python
     buildCommand: pip install -r backend_requirements.txt
